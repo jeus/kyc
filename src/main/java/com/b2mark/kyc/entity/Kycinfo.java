@@ -1,9 +1,16 @@
 package com.b2mark.kyc.entity;
 
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "kycinfo")
+@TypeDef(
+        name = "pgsql_enum",
+        typeClass = PostgreSQLEnumType.class
+)
 public class Kycinfo {
 
     @Id
@@ -16,9 +23,17 @@ public class Kycinfo {
     private String licenseid;
 
     @Enumerated(EnumType.STRING)
+    @Type( type = "pgsql_enum" )
     private Gender gender;
+
     @Enumerated(EnumType.STRING)
+    @Type( type = "pgsql_enum" )
     private LicenseType ltype;
+
+    public Kycinfo()
+    {
+
+    }
 
 
     public Kycinfo(Long id, Integer uid, String fname, String lname, String licenseid, Gender gender, LicenseType licenseType) {
