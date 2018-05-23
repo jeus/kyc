@@ -4,7 +4,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-public interface KycinfoRepository extends CrudRepository<Kycinfo,Long> {
+public interface KycCrudRepository extends CrudRepository<Kycinfo,Long> {
 
     List<Kycinfo> findByUid(Integer uid);
 }
