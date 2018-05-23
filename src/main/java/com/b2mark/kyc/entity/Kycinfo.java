@@ -1,9 +1,15 @@
 package com.b2mark.kyc.entity;
 
+import com.b2mark.kyc.enums.Gender;
+import com.b2mark.kyc.enums.KycStatus;
+import com.b2mark.kyc.enums.LicenseType;
+import com.b2mark.kyc.enums.PostgreSQLEnumType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Entity
 @Table(name = "kycinfo")
@@ -22,6 +28,11 @@ public class Kycinfo {
     private String lname;
     private String licenseid;
 
+
+    @Enumerated(EnumType.STRING)
+    @Type( type = "pgsql_enum" )
+    private KycStatus kycstatus;
+
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
     private Gender gender;
@@ -30,13 +41,16 @@ public class Kycinfo {
     @Type( type = "pgsql_enum" )
     private LicenseType ltype;
 
+    @Column(name = "lastupdate", insertable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastupdate;
+
     public Kycinfo()
-    {
-
-    }
+    {}
 
 
-    public Kycinfo(Long id, Integer uid, String fname, String lname, String licenseid, Gender gender, LicenseType licenseType) {
+    public Kycinfo(Long id, Integer uid, String fname, String lname, String licenseid,
+                   Gender gender, LicenseType licenseType) {
         this.id = id;
         this.uid = uid;
         this.fname = fname;
@@ -44,6 +58,31 @@ public class Kycinfo {
         this.licenseid = licenseid;
         this.gender = gender;
         this.ltype = licenseType;
+        this.lastupdate= null;
+    }
+
+    public Date getLastupdate() {
+        return lastupdate;
+    }
+
+    public void setLastupdate(Date lastupdate) {
+        this.lastupdate = lastupdate;
+    }
+
+    public KycStatus getKycstatus() {
+        return kycstatus;
+    }
+
+    public void setKycstatus(KycStatus kycstatus) {
+        this.kycstatus = kycstatus;
+    }
+
+    public LicenseType getLtype() {
+        return ltype;
+    }
+
+    public void setLtype(LicenseType ltype) {
+        this.ltype = ltype;
     }
 
     public Long getId() {
@@ -104,7 +143,8 @@ public class Kycinfo {
 
     public String toString()
     {
+        String lastUpdateStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(lastupdate);
         return String.format("KYC Information:[id=%d, UId=%s, FName=%s, LName=%s, Gender=%s, LicenseType='%s'," +
-                " licenseId=%s]",id,uid,fname,lname,gender,ltype,licenseid);
+                " licenseId=%s], LastUpdate=%s",id,uid,fname,lname,gender,ltype,licenseid,lastUpdateStr);
     }
 }

@@ -1,9 +1,9 @@
 package com.b2mark.kyc;
 
-import com.b2mark.kyc.entity.Gender;
+import com.b2mark.kyc.enums.Gender;
 import com.b2mark.kyc.entity.Kycinfo;
 import com.b2mark.kyc.entity.KycinfoRepository;
-import com.b2mark.kyc.entity.LicenseType;
+import com.b2mark.kyc.enums.LicenseType;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,7 +25,7 @@ public class KycApplication {
 	public CommandLineRunner demo(KycinfoRepository kycinfoRepository)
 	{
 		return (args) -> {
-		    log.info("Before start system this line start"+args.toString());
+		    log.info("*********************************Before start system this line start lenght:"+args.length);
 			kycinfoRepository.save(new Kycinfo(null,10,"Ali","Khandani","1234567",Gender.male,LicenseType.DL));
 			kycinfoRepository.save(new Kycinfo(null,11,"Mehdi","Beygi","7654321",Gender.male,LicenseType.PS));
 			kycinfoRepository.save(new Kycinfo(null,12,"Morteza","Asghari","9999999",Gender.male,LicenseType.NI));

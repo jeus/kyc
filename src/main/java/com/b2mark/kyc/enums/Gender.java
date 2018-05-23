@@ -1,4 +1,4 @@
-package com.b2mark.kyc.entity;
+package com.b2mark.kyc.enums;
 
 public enum Gender {
     male,

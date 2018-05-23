@@ -1,4 +1,4 @@
-package com.b2mark.kyc.entity;
+package com.b2mark.kyc.enums;
 
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
