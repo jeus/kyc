@@ -3,6 +3,7 @@ package com.b2mark.kyc.entity;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "kycinfo")
 public class Kycinfo {
 
     @Id
@@ -17,7 +18,7 @@ public class Kycinfo {
     @Enumerated(EnumType.STRING)
     private Gender gender;
     @Enumerated(EnumType.STRING)
-    private LicenseType licenseType;
+    private LicenseType ltype;
 
 
     public Kycinfo(Long id, Integer uid, String fname, String lname, String licenseid, Gender gender, LicenseType licenseType) {
@@ -27,7 +28,7 @@ public class Kycinfo {
         this.lname = lname;
         this.licenseid = licenseid;
         this.gender = gender;
-        this.licenseType = licenseType;
+        this.ltype = licenseType;
     }
 
     public Long getId() {
@@ -78,17 +79,17 @@ public class Kycinfo {
         this.gender = gender;
     }
 
-    public LicenseType getLicenseType() {
-        return licenseType;
+    public LicenseType getltype() {
+        return ltype;
     }
 
-    public void setLicenseType(LicenseType licenseType) {
-        this.licenseType = licenseType;
+    public void setltype(LicenseType ltype) {
+        this.ltype = ltype;
     }
 
     public String toString()
     {
         return String.format("KYC Information:[id=%d, UId=%s, FName=%s, LName=%s, Gender=%s, LicenseType='%s'," +
-                " licenseId=%s]",id,uid,fname,lname,gender,licenseType,licenseid);
+                " licenseId=%s]",id,uid,fname,lname,gender,ltype,licenseid);
     }
 }
