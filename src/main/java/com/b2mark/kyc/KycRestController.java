@@ -6,7 +6,11 @@ import com.b2mark.kyc.entity.Kycinfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+
+import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -16,17 +20,15 @@ import java.util.List;
     private final KycJpaRepository kycJpaRepository;
 
     @Autowired
-    BookmarkRestController(KycJpaRepository kycJpaRepository) {
+    KycRestController(KycJpaRepository kycJpaRepository) {
         this.kycJpaRepository = kycJpaRepository;
     }
 
-    //Check this commit in system
-
     @GetMapping
-    List<Kycinfo> readBookmarks(@PathVariable Integer uid) {
+    Collection<Kycinfo> readKyc(@PathVariable Integer uid) {
         this.validateUser(uid);
 
-        return this.kycJpaRepository.findByUid(uid);
+        return this.kycJpaRepository.findAll();
     }
 
     @PostMapping
@@ -35,13 +37,11 @@ import java.util.List;
 
         return this.kycJpaRepository.findByUid(uid)
                 .map(account -> {
-                    Bookmark result = bookmarkRepository.save(new Bookmark(account,
-                            input.getUri(), input.getDescription()));
+                    Kycinfo result = kycJpaRepository.save(new Kycinfo());
 
                     URI location = ServletUriComponentsBuilder
                             .fromCurrentRequest().path("/{id}")
                             .buildAndExpand(result.getId()).toUri();
-
                     return ResponseEntity.created(location).build();
                 })
                 .orElse(ResponseEntity.noContent().build());
@@ -56,8 +56,8 @@ import java.util.List;
                 .orElseThrow(() -> new BookmarkNotFoundException(bookmarkId));
     }
 
-    private void validateUser(Integer userId) {
-        this.accountRepository.findByUsername(userId).orElseThrow(
+    private void validateUser(Integer uId) {
+        this.accountRepository.findByUsername(uId).orElseThrow(
                 () -> new UserNotFoundException(userId));
     }
 }

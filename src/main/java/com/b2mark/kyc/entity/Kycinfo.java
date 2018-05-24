@@ -1,7 +1,7 @@
 package com.b2mark.kyc.entity;
 
 import com.b2mark.kyc.enums.Gender;
-import com.b2mark.kyc.enums.KycStatus;
+import com.b2mark.kyc.enums.Status;
 import com.b2mark.kyc.enums.LicenseType;
 import com.b2mark.kyc.enums.PostgreSQLEnumType;
 import org.hibernate.annotations.Type;
@@ -31,7 +31,7 @@ public class Kycinfo {
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
-    private KycStatus kycstatus;
+    private Status status;
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
@@ -69,12 +69,12 @@ public class Kycinfo {
         this.lastupdate = lastupdate;
     }
 
-    public KycStatus getKycstatus() {
-        return kycstatus;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setKycstatus(KycStatus kycstatus) {
-        this.kycstatus = kycstatus;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public LicenseType getLtype() {

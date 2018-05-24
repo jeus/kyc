@@ -1,6 +1,6 @@
 package com.b2mark.kyc.enums;
 
-public enum KycStatus {
+public enum Status {
     no_active,
     pending,
     accepted,
