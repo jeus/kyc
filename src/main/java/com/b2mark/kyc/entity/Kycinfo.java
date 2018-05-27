@@ -31,7 +31,7 @@ public class Kycinfo {
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
-    private Status status;
+    private Status status = Status.not_active;
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
@@ -131,14 +131,6 @@ public class Kycinfo {
 
     public void setGender(Gender gender) {
         this.gender = gender;
-    }
-
-    public LicenseType getltype() {
-        return ltype;
-    }
-
-    public void setltype(LicenseType ltype) {
-        this.ltype = ltype;
     }
 
     public String toString()
