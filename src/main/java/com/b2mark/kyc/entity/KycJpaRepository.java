@@ -6,6 +6,5 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface KycJpaRepository extends JpaRepository<Kycinfo, Long> {
-
     Optional<Kycinfo> findByUid(Integer uid);
 }
