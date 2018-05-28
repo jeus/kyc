@@ -1,3 +1,11 @@
+/**
+ * <h1>kycinfo entity class</h1>
+ * kycinfo persist user kyc information and status of validation that.
+ *
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
 package com.b2mark.kyc.entity;
 
 import com.b2mark.kyc.enums.Gender;
@@ -6,7 +14,6 @@ import com.b2mark.kyc.enums.LicenseType;
 import com.b2mark.kyc.enums.PostgreSQLEnumType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -45,6 +52,9 @@ public class Kycinfo {
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastupdate;
 
+    /**
+     * this class using by JPA.
+     */
     public Kycinfo()
     {}
 
@@ -133,6 +143,10 @@ public class Kycinfo {
         this.gender = gender;
     }
 
+    /**
+     * <b>toString</b> retun fields of kycInfo object
+     * @return
+     */
     public String toString()
     {
         String lastUpdateStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(lastupdate);

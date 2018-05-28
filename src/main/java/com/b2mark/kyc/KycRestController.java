@@ -1,3 +1,15 @@
+/**
+ * <h1>RestFul controll KYC</h1>
+ * user can define kyc and operator can check validation od information<p>
+ * <b>Note:</b> User can only define one KYC information<p>
+ * every kyc information has 4 status. ['not_active','pending','accepted','rejected']
+ *
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
+
+
 package com.b2mark.kyc;
 
 
@@ -34,9 +46,8 @@ class KycRestController {
     }
 
     /**
-     * send KYC information of specific user.
-     * if UID not found return 204 no content.
-     *
+     * send KYC information of specific user
+     * if UID not found return 204 no content
      * @param uid user Identification
      * @return json kyc information of user
      */
@@ -53,8 +64,7 @@ class KycRestController {
 
     /**
      * return all user kyc. this section enable for admin users
-     * in administrator panel operator controll users kyc in system.
-     *
+     * in administrator panel operator controll users kyc in systems
      * @return
      */
     @GetMapping(params = {"page", "size", "dir"})
@@ -100,6 +110,8 @@ class KycRestController {
         log.info("MTD:update DSC:update exist kycinfo");
         //TODO: have to check validation user that update is same to specific user(UID)
         //TODO: Test(operator shouldnt update kyc)
+        //TODO: when update change lastUpdate to now();
+
         Optional<Kycinfo> kycInfoOptional = kycJpaRepository.findById(89L);
         if(kycInfoOptional.isPresent())
         {

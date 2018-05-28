@@ -1,3 +1,13 @@
+/**
+ * <h1>Exception when data not found</h1>
+ * <p> This excption when call that information not found in database.
+ * <b>HTTP CODE:</b>204 no_content
+ *
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
+
 package com.b2mark.kyc.exception;
 
 

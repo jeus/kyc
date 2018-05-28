@@ -1,3 +1,13 @@
+/**
+ * <h1>JPA and Postgresql</h1>
+ * <p>This class use for maping postgresql enum in jpa.
+ *
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ *
+ */
+
 package com.b2mark.kyc.enums;
 
 import org.hibernate.HibernateException;

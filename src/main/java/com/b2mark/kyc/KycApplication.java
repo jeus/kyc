@@ -1,3 +1,15 @@
+/**
+ * <h1>RestFul controll KYC</h1>
+ * user can define kyc and operator can check validation od information<p>
+ * <b>Note:</b> User can only define one KYC information<p>
+ * every kyc information has 4 status. ['not_active','pending','accepted','rejected']
+ *
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
+
+
 package com.b2mark.kyc;
 
 import com.b2mark.kyc.enums.Gender;
