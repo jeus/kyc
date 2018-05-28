@@ -23,7 +23,6 @@ public enum Status {
         return this.status;
     }
 
-
     public static Status fromString(String status) {
         for (Status b : Status.values()) {
             if (b.status.equalsIgnoreCase(status)) {

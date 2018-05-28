@@ -14,4 +14,5 @@ import java.util.Optional;
 public interface KycJpaRepository extends JpaRepository<Kycinfo, Long> {
     Optional<Kycinfo> findByUid(Integer uid);
     Collection<Kycinfo> findByStatus(Status status);
+    boolean existsByUid(Integer uid);
 }

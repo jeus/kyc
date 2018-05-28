@@ -9,7 +9,6 @@
  * @since 2018
  */
 
-
 package com.b2mark.kyc;
 
 
@@ -23,14 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-
 import java.net.URI;
 import java.util.Collection;
 import java.util.Optional;
+
 
 @RestController
 @RequestMapping("/kyc")
@@ -112,10 +111,8 @@ class KycRestController {
         //TODO: Test(operator shouldnt update kyc)
         //TODO: when update change lastUpdate to now();
 
-        Optional<Kycinfo> kycInfoOptional = kycJpaRepository.findById(89L);
-        if(kycInfoOptional.isPresent())
-        {
-            input.setId(89L);
+        if(kycJpaRepository.existsByUid(15)) {
+            input.setId(88L);
             kycJpaRepository.save(input);
             return ResponseEntity.noContent().build();
         }else
@@ -123,6 +120,39 @@ class KycRestController {
             throw new ContentNotFound("This user id undefined");
         }
     }
+
+
+    @GetMapping("/{uid}/reject")
+    String reject(@PathVariable Integer uid)
+    {
+        Optional<Kycinfo> kycinfoOptional;
+        if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
+            log.info("####################kyc indo find all:" + uid);
+          Kycinfo kycinfo = kycinfoOptional.get();
+          kycinfo.setStatus(Status.rejected);
+          kycJpaRepository.save(kycinfo);
+            return "";
+        } else {
+            throw new ContentNotFound();
+        }
+    }
+
+
+//    @GetMapping("/{uid}/pending")
+//    ResponseEntity<?> accept(@PathVariable Integer uid)
+//    {
+//
+//    }
+//
+//    @GetMapping("/{uid}/accepted")
+//    ResponseEntity<?> pending(@PathVariable Integer uid)
+//    {
+//
+//    }
+
+
+
+
 
     private void validateUser(Integer userId) {
         //TODO: this section have to check user validation. if have kyc or not.
