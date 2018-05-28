@@ -62,7 +62,7 @@ class KycRestController {
                                    @RequestParam(value = "size", defaultValue = "10") int size,
                                    @RequestParam(value = "dir", defaultValue = "asc") String dir,
                                    @RequestParam(value = "status", defaultValue = "all") String st) {
-        //TODO: have to check authentication for users. this system have to check only user with specific information
+        //TODO: have to check authentication for Operator. this system have to check only user with specific information
         Sort.Direction direction = Sort.Direction.ASC;
         if (dir.toLowerCase().equals("asc")) {
             direction = Sort.Direction.ASC;
@@ -84,34 +84,17 @@ class KycRestController {
     }
 
     @PostMapping
-    ResponseEntity<?> add(@PathVariable Integer uid, @RequestBody Kycinfo input) {
+    ResponseEntity<?> add(@RequestBody Kycinfo input) {
 
+        log.info("##############TA INJA OMAD##################");
+        //TODO: have to check validation user that insert is same to specific user (UID)
+        //TODO: Test(operator shouldnt create kyc)
+        Kycinfo kycInfo = kycJpaRepository.save(input);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{uid}")
+                .buildAndExpand(kycInfo.getId()).toUri();
+        return ResponseEntity.created(location).build();
 
-        this.validateUser(uid);
-//        return this.accountRepository
-//                .findByUsername(userId)
-//                .map(account -> {
-//                    Bookmark result = bookmarkRepository.save(new Bookmark(account,
-//                            input.getUri(), input.getDescription()));
-//
-//                    URI location = ServletUriComponentsBuilder
-//                            .fromCurrentRequest().path("/{id}")
-//                            .buildAndExpand(result.getId()).toUri();
-//
-//                    return ResponseEntity.created(location).build();
-//                })
-//                .orElse(ResponseEntity.noContent().build());
-
-
-        return this.kycJpaRepository.findByUid(uid).map(kyc -> {
-            Kycinfo result = kycJpaRepository.save(new Kycinfo(null, input.getUid(), input.getFname(), input.getLname(),
-                    input.getLicenseid(), input.getGender(), input.getLtype()));
-
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest().path("/{uid}")
-                    .buildAndExpand(result.getId()).toUri();
-            return ResponseEntity.created(location).build();
-        }).orElse(ResponseEntity.noContent().build());
     }
 
 
