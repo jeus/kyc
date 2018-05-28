@@ -80,13 +80,11 @@ class KycRestController {
             else
                 throw new ContentNotFound("Kyc Status Undefined");
         }
-
     }
 
     @PostMapping
     ResponseEntity<?> add(@RequestBody Kycinfo input) {
-
-        log.info("##############TA INJA OMAD##################");
+        log.info("MTD:add DESC:add new kycinfo for users");
         //TODO: have to check validation user that insert is same to specific user (UID)
         //TODO: Test(operator shouldnt create kyc)
         Kycinfo kycInfo = kycJpaRepository.save(input);
@@ -94,9 +92,25 @@ class KycRestController {
                 .fromCurrentRequest().path("/{uid}")
                 .buildAndExpand(kycInfo.getId()).toUri();
         return ResponseEntity.created(location).build();
-
     }
 
+
+    @PutMapping
+    ResponseEntity<?> update(@RequestBody Kycinfo input){
+        log.info("MTD:update DSC:update exist kycinfo");
+        //TODO: have to check validation user that update is same to specific user(UID)
+        //TODO: Test(operator shouldnt update kyc)
+        Optional<Kycinfo> kycInfoOptional = kycJpaRepository.findById(89L);
+        if(kycInfoOptional.isPresent())
+        {
+            input.setId(89L);
+            kycJpaRepository.save(input);
+            return ResponseEntity.noContent().build();
+        }else
+        {
+            throw new ContentNotFound("This user id undefined");
+        }
+    }
 
     private void validateUser(Integer userId) {
         //TODO: this section have to check user validation. if have kyc or not.
