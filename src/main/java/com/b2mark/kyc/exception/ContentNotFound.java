@@ -5,21 +5,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.NO_CONTENT)
-public class KycNotFound extends RuntimeException {
+public class ContentNotFound extends RuntimeException {
 
-    public KycNotFound() {
+    public ContentNotFound() {
         super();
     }
 
-    public KycNotFound(String message, Throwable cause) {
+    public ContentNotFound(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public KycNotFound(String message) {
+    public ContentNotFound(String message) {
         super(message);
     }
 
-    public KycNotFound(Throwable cause) {
+    public ContentNotFound(Throwable cause) {
         super(cause);
     }
 
