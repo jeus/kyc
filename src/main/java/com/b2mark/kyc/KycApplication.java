@@ -23,7 +23,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.filter.reactive.HiddenHttpMethodFilter;
 
 @SpringBootApplication
@@ -35,13 +34,14 @@ public class KycApplication {
         SpringApplication.run(KycApplication.class, args);
     }
 
+    /**
+     * This bean use for delete image html5 not support delete.
+     * @return
+     */
     @Bean
     HiddenHttpMethodFilter hiddenHttpMethodFilter() {return new HiddenHttpMethodFilter();}
 
-    @Bean
-    ParameterMessageInterpolator parameterMessageInterpolator() {return new ParameterMessageInterpolator();}
-
-    @RequestMapping("/kyc")
+//    @RequestMapping("/kyc")
 
     @Bean
     public CommandLineRunner demo(KycCrudRepository kycCrudRepository) {

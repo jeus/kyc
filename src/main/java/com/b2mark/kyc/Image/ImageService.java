@@ -19,6 +19,7 @@ import com.b2mark.kyc.enums.ImageType;
 import com.b2mark.kyc.exception.ContentNotFound;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.codec.multipart.FilePart;
@@ -37,18 +38,19 @@ import java.util.Arrays;
 /**
  * @author Greg Turnquist
  */
+@Configuration
 @Service
 public class ImageService {
 
     private static String UPLOAD_ROOT = "upload-dir";
     private final ResourceLoader resourceLoader;
-    private final MeterRegistry meterRegistry;
+//    private final MeterRegistry meterRegistry;
 
     public ImageService(ResourceLoader resourceLoader,
                         MeterRegistry meterRegistry) {
 
         this.resourceLoader = resourceLoader;
-        this.meterRegistry = meterRegistry;
+//        this.meterRegistry = meterRegistry;
     }
 
     public Mono<Resource> findOneImage(String filename) {
@@ -88,12 +90,7 @@ public class ImageService {
                             })
                             .log("createImage-newfile")
                             .flatMap(file::transferTo)
-                            .log("createImage-copy")
-                            .then(Mono.fromRunnable(() ->
-                                    meterRegistry
-                                            .summary("files.uploaded.bytes")
-                                            .record(Paths.get(UPLOAD_ROOT + imgType.getDirectory(), file.filename()).toFile().length())
-                            ));
+                            .log("createImage-copy");
 
                     return Mono.when(copyFile).log("createImage-when");
                 })
