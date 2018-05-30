@@ -12,6 +12,7 @@
 package com.b2mark.kyc;
 
 
+import com.b2mark.kyc.Image.ImageService;
 import com.b2mark.kyc.entity.KycJpaRepository;
 import com.b2mark.kyc.entity.Kycinfo;
 import com.b2mark.kyc.enums.Status;
@@ -22,10 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.awt.*;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Optional;
@@ -36,17 +41,19 @@ import java.util.Optional;
 class KycRestController {
 
     private static final Logger log = LoggerFactory.getLogger(KycApplication.class);
-
+    private final ImageService imageService;
     private final KycJpaRepository kycJpaRepository;
 
     @Autowired
-    KycRestController(KycJpaRepository kycJpaRepository) {
+    KycRestController(KycJpaRepository kycJpaRepository, ImageService imageService) {
         this.kycJpaRepository = kycJpaRepository;
+        this.imageService = imageService;
     }
 
     /**
      * send KYC information of specific user
      * if UID not found return 204 no content
+     *
      * @param uid user Identification
      * @return json kyc information of user
      */
@@ -64,6 +71,7 @@ class KycRestController {
     /**
      * return all user kyc. this section enable for admin users
      * in administrator panel operator controll users kyc in systems
+     *
      * @return
      */
     @GetMapping(params = {"page", "size", "dir"})
@@ -105,32 +113,30 @@ class KycRestController {
 
 
     @PutMapping
-    ResponseEntity<?> update(@RequestBody Kycinfo input){
+    ResponseEntity<?> update(@RequestBody Kycinfo input) {
         log.info("MTD:update DSC:update exist kycinfo");
         //TODO: have to check validation user that update is same to specific user(UID)
         //TODO: Test(operator shouldnt update kyc)
         //TODO: when update change lastUpdate to now();
 
-        if(kycJpaRepository.existsByUid(15)) {
+        if (kycJpaRepository.existsByUid(15)) {
             input.setId(88L);
             kycJpaRepository.save(input);
             return ResponseEntity.noContent().build();
-        }else
-        {
+        } else {
             throw new ContentNotFound("This user id undefined");
         }
     }
 
 
     @GetMapping("/{uid}/reject")
-    String reject(@PathVariable Integer uid)
-    {
+    String reject(@PathVariable Integer uid) {
         Optional<Kycinfo> kycinfoOptional;
         if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
             log.info("####################kyc indo find all:" + uid);
-          Kycinfo kycinfo = kycinfoOptional.get();
-          kycinfo.setStatus(Status.rejected);
-          kycJpaRepository.save(kycinfo);
+            Kycinfo kycinfo = kycinfoOptional.get();
+            kycinfo.setStatus(Status.rejected);
+            kycJpaRepository.save(kycinfo);
             return "";
         } else {
             throw new ContentNotFound();
@@ -143,15 +149,19 @@ class KycRestController {
 //    {
 //
 //    }
-//
+
 //    @GetMapping("/{uid}/accepted")
 //    ResponseEntity<?> pending(@PathVariable Integer uid)
 //    {
 //
 //    }
 
-
-
+    @PostMapping(value = "/img")
+    public Mono<String> createFile(@RequestPart(name = "file") Flux<FilePart> files, @RequestParam(name= "imgType") String imgType) {
+        return imageService.createImage(files,imgType)
+                .then(Mono.just("redirect:/"));
+        //TODO: check redirect in AJAX what behavior
+    }
 
 
     private void validateUser(Integer userId) {

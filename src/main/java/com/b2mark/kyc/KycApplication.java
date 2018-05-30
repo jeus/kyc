@@ -16,6 +16,7 @@ import com.b2mark.kyc.enums.Gender;
 import com.b2mark.kyc.entity.Kycinfo;
 import com.b2mark.kyc.entity.KycCrudRepository;
 import com.b2mark.kyc.enums.LicenseType;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.filter.reactive.HiddenHttpMethodFilter;
 
 @SpringBootApplication
 public class KycApplication {
@@ -33,6 +35,11 @@ public class KycApplication {
         SpringApplication.run(KycApplication.class, args);
     }
 
+    @Bean
+    HiddenHttpMethodFilter hiddenHttpMethodFilter() {return new HiddenHttpMethodFilter();}
+
+    @Bean
+    ParameterMessageInterpolator parameterMessageInterpolator() {return new ParameterMessageInterpolator();}
 
     @RequestMapping("/kyc")
 
