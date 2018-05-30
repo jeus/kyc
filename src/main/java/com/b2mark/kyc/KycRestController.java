@@ -157,7 +157,7 @@ class KycRestController {
 //    }
 
     @PostMapping(value = "/img")
-    public Mono<String> createFile(@RequestPart(name = "file") Flux<FilePart> files, @RequestParam(name= "imgType") String imgType) {
+    public Mono<String> createFile(@RequestPart(name = "file") Flux<FilePart> files, @RequestHeader(name= "imgType") String imgType) {
         return imageService.createImage(files,imgType)
                 .then(Mono.just("redirect:/"));
         //TODO: check redirect in AJAX what behavior

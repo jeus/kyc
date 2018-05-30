@@ -23,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.metrics.instrument.MeterRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import reactor.core.publisher.Flux;
@@ -46,11 +45,9 @@ public class ImageService {
     private final ResourceLoader resourceLoader;
 //    private final MeterRegistry meterRegistry;
 
-    public ImageService(ResourceLoader resourceLoader,
-                        MeterRegistry meterRegistry) {
+    public ImageService(ResourceLoader resourceLoader) {
 
         this.resourceLoader = resourceLoader;
-//        this.meterRegistry = meterRegistry;
     }
 
     public Mono<Resource> findOneImage(String filename) {
