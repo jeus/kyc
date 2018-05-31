@@ -12,25 +12,26 @@
 package com.b2mark.kyc;
 
 
-import com.b2mark.kyc.Image.ImageService;
 import com.b2mark.kyc.entity.KycJpaRepository;
 import com.b2mark.kyc.entity.Kycinfo;
+import com.b2mark.kyc.enums.ImageType;
 import com.b2mark.kyc.enums.Status;
+import com.b2mark.kyc.exception.BadRequest;
 import com.b2mark.kyc.exception.ContentNotFound;
+import com.b2mark.kyc.Image.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import java.awt.*;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Optional;
@@ -41,13 +42,17 @@ import java.util.Optional;
 class KycRestController {
 
     private static final Logger log = LoggerFactory.getLogger(KycApplication.class);
-    private final ImageService imageService;
+
     private final KycJpaRepository kycJpaRepository;
+    private final StorageService storageService;
+
+
+
 
     @Autowired
-    KycRestController(KycJpaRepository kycJpaRepository, ImageService imageService) {
+    KycRestController(KycJpaRepository kycJpaRepository, StorageService storageService) {
         this.kycJpaRepository = kycJpaRepository;
-        this.imageService = imageService;
+        this.storageService = storageService;
     }
 
     /**
@@ -118,7 +123,6 @@ class KycRestController {
         //TODO: have to check validation user that update is same to specific user(UID)
         //TODO: Test(operator shouldnt update kyc)
         //TODO: when update change lastUpdate to now();
-
         if (kycJpaRepository.existsByUid(15)) {
             input.setId(88L);
             kycJpaRepository.save(input);
@@ -132,6 +136,7 @@ class KycRestController {
     @GetMapping("/{uid}/reject")
     String reject(@PathVariable Integer uid) {
         Optional<Kycinfo> kycinfoOptional;
+        //TODO: check role and permission
         if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
             log.info("####################kyc indo find all:" + uid);
             Kycinfo kycinfo = kycinfoOptional.get();
@@ -139,30 +144,72 @@ class KycRestController {
             kycJpaRepository.save(kycinfo);
             return "";
         } else {
-            throw new ContentNotFound();
+            throw new ContentNotFound("This user is invalid");
+        }
+    }
+
+    @GetMapping("/{uid}/pending")
+    String pending(@PathVariable Integer uid) {
+        //TODO: check role and permission
+        Optional<Kycinfo> kycinfoOptional;
+        if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
+            log.info("####################kyc indo find all:" + uid);
+            Kycinfo kycinfo = kycinfoOptional.get();
+            kycinfo.setStatus(Status.accepted);
+            kycJpaRepository.save(kycinfo);
+            return "";
+        } else {
+            throw new ContentNotFound("this user is invalid");
+        }
+    }
+
+    @GetMapping("/{uid}/accept")
+    String accept(@PathVariable Integer uid) {
+        //TODO: check role and permission
+        Optional<Kycinfo> kycinfoOptional;
+        if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
+            log.info("####################kyc indo find all:" + uid);
+            Kycinfo kycinfo = kycinfoOptional.get();
+            kycinfo.setStatus(Status.accepted);
+            kycJpaRepository.save(kycinfo);
+            return "";
+        } else {
+            throw new ContentNotFound("this user is invalid");
         }
     }
 
 
-//    @GetMapping("/{uid}/pending")
-//    ResponseEntity<?> accept(@PathVariable Integer uid)
-//    {
-//
-//    }
+    @GetMapping("/files/{imgtype}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveFile(@PathVariable String imgtype) {
 
-//    @GetMapping("/{uid}/accepted")
-//    ResponseEntity<?> pending(@PathVariable Integer uid)
-//    {
-//
-//    }
-
-    @PostMapping(value = "/img")
-    public Mono<String> createFile(@RequestPart(name = "file") Flux<FilePart> files, @RequestHeader(name= "imgType") String imgType) {
-        return imageService.createImage(files,imgType)
-                .then(Mono.just("redirect:/"));
-        //TODO: check redirect in AJAX what behavior
+        ImageType imageType = null;
+        if((imageType = ImageType.fromString(imgtype)) != null ) {
+            Resource file = storageService.loadAsResource(imageType);
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        }
+        else
+        {
+            throw  new BadRequest("imagetype [" +imageType+"] is not valid" );
+        }
     }
 
+    @PostMapping("/img")
+    public String handleFileUpload(@RequestParam("file") MultipartFile file,
+                                   @RequestHeader("imgtype") String imgtypeStr,
+                                   RedirectAttributes redirectAttributes) {
+        ImageType imageType = null;
+        if((imageType = ImageType.fromString(imgtypeStr)) != null) {
+            storageService.store(file,imageType);
+            redirectAttributes.addFlashAttribute("message",
+                    "You successfully uploaded " + file.getOriginalFilename() + "!");
+            return "";
+        }else
+        {
+            throw new BadRequest("header key:imagetype is not found or invalid imagetype:[cover,passport,passid]");
+        }
+    }
 
     private void validateUser(Integer userId) {
         //TODO: this section have to check user validation. if have kyc or not.

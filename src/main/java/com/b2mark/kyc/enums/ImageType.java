@@ -6,7 +6,9 @@
 
 package com.b2mark.kyc.enums;
 
-import java.text.MessageFormat;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 
 public enum ImageType {
     cover("cover"),
@@ -25,7 +27,14 @@ public enum ImageType {
         return this.imageType;
     }
 
-    public String getDirectory() {return MessageFormat.format("/{0}", this.imageType);}
+    public Path getPath(Path rootLocation) {
+        StringBuilder sb = new StringBuilder(
+                rootLocation.toAbsolutePath().toString())
+                .append("/").append(this.imageType);
+
+        return Paths.get(sb.toString());
+    }
+
 
     public static ImageType fromString(String imageType) {
         for (ImageType b : ImageType.values()) {
