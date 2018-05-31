@@ -18,7 +18,7 @@ import com.b2mark.kyc.enums.ImageType;
 import com.b2mark.kyc.enums.Status;
 import com.b2mark.kyc.exception.BadRequest;
 import com.b2mark.kyc.exception.ContentNotFound;
-import com.b2mark.kyc.Image.storage.StorageService;
+import com.b2mark.kyc.image.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

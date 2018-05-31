@@ -1,4 +1,4 @@
-package com.b2mark.kyc.Image.storage;
+package com.b2mark.kyc.image.storage;
 
 import com.b2mark.kyc.enums.ImageType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 @Service

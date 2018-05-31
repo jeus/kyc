@@ -13,8 +13,8 @@
 package com.b2mark.kyc;
 
 import com.b2mark.kyc.entity.KycCrudRepository;
-import com.b2mark.kyc.Image.storage.StorageProperties;
-import com.b2mark.kyc.Image.storage.StorageService;
+import com.b2mark.kyc.image.storage.StorageProperties;
+import com.b2mark.kyc.image.storage.StorageService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
