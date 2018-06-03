@@ -39,28 +39,10 @@ public class KycApplication {
     @Bean
     public CommandLineRunner demo(KycCrudRepository kycCrudRepository,StorageService storageService) {
         return (args) -> {
-            log.info("*********************************Before start system this line start lenght:" + args.length);
-//            kycCrudRepository.save(new Kycinfo(null, 10, "Ali", "Khandani", "1234567", Gender.male, LicenseType.DL));
-//            kycCrudRepository.save(new Kycinfo(null, 11, "Mehdi", "Beygi", "7654321", Gender.male, LicenseType.PS));
-//            kycCrudRepository.save(new Kycinfo(null, 12, "Morteza", "Asghari", "9999999", Gender.male, LicenseType.NI));
-//            kycCrudRepository.save(new Kycinfo(null, 13, "Bahman", "Ajami", "8888888", Gender.male, LicenseType.PS));
-//            kycCrudRepository.save(new Kycinfo(null, 14, "Hosein", "Khaste", "7777777", Gender.male, LicenseType.DL));
-//            kycCrudRepository.save(new Kycinfo(null, 15, "Ali", "Khandani", "66666666", Gender.male, LicenseType.DL));
-
-            storageService.deleteAll();
+            storageService.deleteAll();//TODO: have to delete this line.
             storageService.init();
 
-            log.info("Create Six person in Database.ARGS:---->" + args.length);
-            for (Object obj : args) {
-                log.info("--------ARG-------" + obj.toString());
-            }
-            log.info("-------------------------------");
-
-            kycCrudRepository.findAll().forEach((val) -> log.info(val.toString()));
-
-            kycCrudRepository.findByUid(11).forEach((val) -> log.info(val.toString()));
-
-            log.info(kycCrudRepository.findById(1L).isPresent() ? "LOADED USER" : "DONT EXIST");
         };
     }
+
 }
