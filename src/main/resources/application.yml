@@ -1,0 +1,59 @@
+info:
+    app:
+        desc: kyc (know yourself customer)
+        name: kycinfo
+logging:
+    level:
+        org:
+            springframework:
+                security: DEBUG
+            hibernate: DEBUG
+
+server:
+    contextPath: /kyc/
+    use-forward-headers: true
+    port: 9092
+    host: kyc.b2mark.com
+
+uaa:
+  url: ${UAA_URI:http://localhost:8080/uaa}
+  # Client ID on whose behalf the access_token will be verified by Resource Server
+  clientId: uaa-ui-client
+  clientSecret: secret
+spring:
+  profile:
+    active: production
+  datasource:
+    url: jdbc:postgresql://87.98.188.77:5432/postgres
+    username: postgres
+    password: A123456b
+    driverClassName: org.postgresql.Driver
+  jpa:
+    hibernate:
+      hbm2ddl:
+        auto: update
+      ejb:
+        naming_strategy: org.hibernate.cfg.EJB3NamingStrategy
+      show_sql: true
+      format_sql: true
+      use_sql_comments: false
+      type: all
+      disableConnectionTracking: true
+      default_schema: dental
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  servlet:
+    multipart:
+#      maxFileSize: 128K
+      max_file_size: 128
+#      maxRequestSize: 128K
+      max_request_size: 128
+  http.multipart.enabled: true
+debug: true
+
+
+
+
