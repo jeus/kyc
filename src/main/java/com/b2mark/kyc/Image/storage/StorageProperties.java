@@ -1,4 +1,4 @@
-package com.b2mark.kyc.Image.storage;
+package com.b2mark.kyc.image.storage;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

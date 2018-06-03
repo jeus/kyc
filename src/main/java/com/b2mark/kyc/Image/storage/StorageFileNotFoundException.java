@@ -1,4 +1,4 @@
-package com.b2mark.kyc.Image.storage;
+package com.b2mark.kyc.image.storage;
 
 public class StorageFileNotFoundException extends StorageException {
 

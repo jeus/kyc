@@ -179,7 +179,7 @@ class KycRestController {
     }
 
 
-    @GetMapping("/files/{imgtype}")
+    @GetMapping("/img/{imgtype}")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String imgtype) {
 
