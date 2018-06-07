@@ -15,6 +15,8 @@ import com.b2mark.kyc.enums.PostgreSQLEnumType;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,11 +30,16 @@ public class Kycinfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull
     private Long id ;
     /*UserId persist in AAS system*/
+    @NotBlank
     private Integer uid;
+    @NotNull
     private String fname;
+    @NotNull
     private String lname;
+    @NotNull
     private String licenseid;
 
 
@@ -42,14 +49,17 @@ public class Kycinfo {
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
+    @NotNull
     private Gender gender;
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
+    @NotNull
     private LicenseType ltype;
 
     @Column(name = "lastupdate", insertable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
+    @NotNull
     private Date lastupdate;
 
     /**

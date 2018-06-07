@@ -3,6 +3,7 @@ package com.b2mark.kyc.swagger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.OAuthBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -26,6 +27,16 @@ public class SwaggerConfig {
     private String serviceName;
     @Value("${info.app.desc}")
     private String serviceDesc;
+    @Value("${info.app.contact.email}")
+    private String email;
+    @Value("${info.app.contact.url}")
+    private String url;
+    @Value("${info.app.contact.name}")
+    private String contactName;
+    @Value("${info.app.version}")
+    private String version;
+    @Value("${info.app.license}")
+    private String license;
     @Value("${uaa.clientId}")
     String clientId;
     @Value("${uaa.clientSecret}")
@@ -36,8 +47,9 @@ public class SwaggerConfig {
 
     @Bean
     public Docket api() {
+        final ApiInfo apiInfo = apiInfo();
         return new Docket(DocumentationType.SWAGGER_2)
-                .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build();
+                .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build().apiInfo(apiInfo);
     }
 
     @Bean
@@ -54,7 +66,6 @@ public class SwaggerConfig {
     }
 
 
-
     /**
      * disable validatorURL the section on swagger_ui that check all APIs.
      * security
@@ -69,9 +80,16 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-        ApiInfo apiInfo = new ApiInfo("KYC REST API", "Know Yourself Customer", "1.0", "B2Mark License",
-                new Contact("B2Mark", "www.B2Mark.com", "info@b2mark.com"), "B2Mark Trademark License", "www.b2mark.com/license", Collections.emptyList());
-        return apiInfo;
+       return new ApiInfoBuilder().title(serviceName)
+               .description(serviceDesc)
+               .version(version).license(license)
+               .contact(new Contact(contactName,
+                       url,
+                       email))
+               .termsOfServiceUrl("Term Of Service")
+               .licenseUrl( "www.b2mark.com/license")
+               .extensions(Collections.emptyList()).build();
+
     }
 
 

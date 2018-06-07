@@ -1,19 +1,25 @@
 info:
-    app:
-        desc: kyc (know yourself customer)
-        name: kycinfo
+  app:
+    desc: kyc (know yourself customer)
+    name: kycinfo
+    version: 1.0
+    license: b2mark
+    contact:
+      email: info@b2mark.com
+      url: b2mark.com
+      name: b2mark
 logging:
-    level:
-        org:
-            springframework:
-                security: DEBUG
-            hibernate: DEBUG
+  level:
+    org:
+      springframework:
+        security: DEBUG
+      hibernate: DEBUG
 
 server:
-    contextPath: /kyc/
-    use-forward-headers: true
-    port: 9092
-    host: kyc.b2mark.com
+  contextPath: /kyc/
+  use-forward-headers: true
+  port: 9092
+  host: kyc.b2mark.com
 
 uaa:
   url: ${UAA_URI:http://localhost:8080/uaa}
