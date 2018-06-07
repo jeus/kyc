@@ -12,6 +12,9 @@ import com.b2mark.kyc.enums.Gender;
 import com.b2mark.kyc.enums.Status;
 import com.b2mark.kyc.enums.LicenseType;
 import com.b2mark.kyc.enums.PostgreSQLEnumType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import javax.persistence.*;
@@ -26,6 +29,7 @@ import java.util.Date;
         name = "pgsql_enum",
         typeClass = PostgreSQLEnumType.class
 )
+@Setter @Getter @NoArgsConstructor
 public class Kycinfo {
 
     @Id
@@ -41,7 +45,8 @@ public class Kycinfo {
     private String lname;
     @NotNull
     private String licenseid;
-
+    @NotNull
+    private String country;
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
@@ -62,12 +67,6 @@ public class Kycinfo {
     @NotNull
     private Date lastupdate;
 
-    /**
-     * this class using by JPA.
-     */
-    public Kycinfo()
-    {}
-
 
     public Kycinfo(Long id, Integer uid, String fname, String lname, String licenseid,
                    Gender gender, LicenseType licenseType) {
@@ -79,78 +78,6 @@ public class Kycinfo {
         this.gender = gender;
         this.ltype = licenseType;
         this.lastupdate= null;
-    }
-
-    public Date getLastupdate() {
-        return lastupdate;
-    }
-
-    public void setLastupdate(Date lastupdate) {
-        this.lastupdate = lastupdate;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public LicenseType getLtype() {
-        return ltype;
-    }
-
-    public void setLtype(LicenseType ltype) {
-        this.ltype = ltype;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Integer getUid() {
-        return uid;
-    }
-
-    public void setUid(Integer uid) {
-        this.uid = uid;
-    }
-
-    public String getFname() {
-        return fname;
-    }
-
-    public void setFname(String fname) {
-        this.fname = fname;
-    }
-
-    public String getLname() {
-        return lname;
-    }
-
-    public void setLname(String lname) {
-        this.lname = lname;
-    }
-
-    public String getLicenseid() {
-        return licenseid;
-    }
-
-    public void setLicenseid(String licenseid) {
-        this.licenseid = licenseid;
-    }
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
     }
 
     /**
