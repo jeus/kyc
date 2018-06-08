@@ -53,10 +53,8 @@ spring:
             non_contextual_creation: true
   servlet:
     multipart:
-#      maxFileSize: 128K
-      max_file_size: 128
-#      maxRequestSize: 128K
-      max_request_size: 128
+      max_file_size: 12000
+      max_request_size: 12000
   http.multipart.enabled: true
 debug: true
 
