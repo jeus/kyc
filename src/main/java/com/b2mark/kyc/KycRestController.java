@@ -215,7 +215,7 @@ class KycRestController {
 
     @PostMapping("/img")
     public String handleFileUpload(@RequestParam("file") MultipartFile file,
-                                   @RequestHeader("imgtype") String imgtypeStr,
+                                   @RequestParam("imgtype") String imgtypeStr,
                                    RedirectAttributes redirectAttributes) {
         ImageType imageType = null;
         if ((imageType = ImageType.fromString(imgtypeStr)) != null) {
@@ -234,6 +234,4 @@ class KycRestController {
 //        this.accountRepository.findByUsername(userId).orElseThrow(
 //                () -> new UserNotFoundException(userId));
     }
-
-
 }
