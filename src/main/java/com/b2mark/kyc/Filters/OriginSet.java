@@ -20,7 +20,7 @@ public class OriginSet {
                 "https://avazcoin.com",
                 "http://staging1.b2mark.com",
                 "http://staging1.b2mark.com"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
