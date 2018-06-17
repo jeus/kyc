@@ -1,5 +1,6 @@
 package com.b2mark.kyc.Filters;
 
+import org.springframework.boot.autoconfigure.security.servlet.WebSecurityEnablerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -15,7 +16,7 @@ public class OriginSet {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://example.com",
+        configuration.setAllowedOrigins(Arrays.asList(
                 "http://avazcoin.com",
                 "https://avazcoin.com",
                 "http://staging1.b2mark.com",
