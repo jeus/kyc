@@ -43,10 +43,10 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Optional;
 
-
 @RestController
 @RequestMapping("/kyc")
 @Api()
+@CrossOrigin(origins = {"http://avazcoin.com","http://staging1.b2mark.com"})
 class KycRestController {
 
     private static final Logger log = LoggerFactory.getLogger(KycApplication.class);
