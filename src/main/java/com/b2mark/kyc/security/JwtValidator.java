@@ -47,24 +47,6 @@ public class JwtValidator {
                     .parseClaimsJws(token1)
                     .getBody();
 
-            System.out.println("========================================================>");
-            System.out.println("========================================================>");
-            System.out.println("===============>");
-            System.out.println(token);
-            System.out.println("-----------------------------------");
-            System.out.println("-----------------------------------");
-            System.out.println("-----------------------------------");
-            System.out.println(token1);
-            System.out.println("===============>");
-            System.out.println("========================================================>");
-            System.out.println("========================================================>");
-            System.out.println(jwtUser.getSub() + "==========************=========");
-            jwtUser.getRealmAccess().getRoles().forEach(args -> System.out.println(args));
-            System.out.println(jwtUser.getSub() + "==========************=========");
-            System.out.println(jwtUser.getSub() + "==========************=========");
-            System.out.println(jwtUser.getSub() + "==========************=========");
-
-
         } catch (JsonGenerationException e1) {
             System.err.println(e1);
         } catch (JsonMappingException e2) {

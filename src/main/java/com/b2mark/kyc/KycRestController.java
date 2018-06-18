@@ -112,14 +112,6 @@ class KycRestController {
                                    @RequestParam(value = "status", defaultValue = "all", required = false) String st, Principal principal, Authentication authentication) {
         //TODO: have to check authentication for Operator. this system have to check only user with specific information
 
-        System.out.println("AAAAAAAAAAAACred" + authentication.getCredentials());
-        System.out.println("AAAAAAAAAAAAPrinc" + authentication.getPrincipal());
-        System.out.println("AAAAAAAAAAAAToS" + authentication.toString());
-        System.out.println("AAAAAAAAAAAADeta" + authentication.getDetails());
-        System.out.println("--------------------**************************----------------------");
-        authentication.getAuthorities().forEach(args -> System.out.printf("\n" + args));
-        System.out.println("\n\n--------------------**************************----------------------");
-        System.out.println(principal.getName() + "-----------------");
 
         boolean authorized =
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
