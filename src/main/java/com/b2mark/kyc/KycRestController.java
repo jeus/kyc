@@ -2,7 +2,7 @@
  * <h1>RestFul controll KYC</h1>
  * user can define kyc and operator can check validation od information<p>
  * <b>Note:</b> User can only define one KYC information<p>
- * every kyc information has 4 status. ['not_active','pending','accepted','rejected']
+ * every kyc information has 4 status. ['pending','checking','accepted','rejected']
  *
  * @author b2mark
  * @version 1.0
@@ -12,7 +12,6 @@
 package com.b2mark.kyc;
 
 
-import com.b2mark.kyc.entity.Country;
 import com.b2mark.kyc.entity.CountryJpaRepository;
 import com.b2mark.kyc.entity.KycJpaRepository;
 import com.b2mark.kyc.entity.Kycinfo;
@@ -33,20 +32,27 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Collection;
-import java.util.Optional;
+import java.security.Principal;
+import java.util.*;
 
 @RestController
 @RequestMapping("/kyc")
+@EnableGlobalMethodSecurity(securedEnabled = true)
 @Api()
-@CrossOrigin(origins = {"http://avazcoin.com","http://staging1.b2mark.com"})
+@CrossOrigin(origins = {"http://avazcoin.com", "http://staging1.b2mark.com"})
 class KycRestController {
 
     private static final Logger log = LoggerFactory.getLogger(KycApplication.class);
@@ -77,7 +83,7 @@ class KycRestController {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
             }
     )
-    Optional<Kycinfo> uidKyc(@PathVariable(value = "uid", required = true) Integer uid) {
+    Optional<Kycinfo> uidKyc(@PathVariable(value = "uid", required = true) String uid) {
         Optional<Kycinfo> kycinfo;
         if ((kycinfo = this.kycJpaRepository.findByUid(uid)).isPresent()) {
             log.info("####################kyc indo find all:" + uid);
@@ -103,8 +109,23 @@ class KycRestController {
     Collection<Kycinfo> AllKycStat(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                    @RequestParam(value = "size", defaultValue = "10", required = false) int size,
                                    @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
-                                   @RequestParam(value = "status", defaultValue = "all", required = false) String st) {
+                                   @RequestParam(value = "status", defaultValue = "all", required = false) String st, Principal principal, Authentication authentication) {
         //TODO: have to check authentication for Operator. this system have to check only user with specific information
+
+        System.out.println("AAAAAAAAAAAACred" + authentication.getCredentials());
+        System.out.println("AAAAAAAAAAAAPrinc" + authentication.getPrincipal());
+        System.out.println("AAAAAAAAAAAAToS" + authentication.toString());
+        System.out.println("AAAAAAAAAAAADeta" + authentication.getDetails());
+        System.out.println("--------------------**************************----------------------");
+        authentication.getAuthorities().forEach(args -> System.out.printf("\n" + args));
+        System.out.println("\n\n--------------------**************************----------------------");
+        System.out.println(principal.getName() + "-----------------");
+
+        boolean authorized =
+                authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
+                        authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
+
+
         Sort.Direction direction = Sort.Direction.ASC;
         if (dir.toLowerCase().equals("asc")) {
             direction = Sort.Direction.ASC;
@@ -114,7 +135,20 @@ class KycRestController {
         Pageable pageable = PageRequest.of(page, size, new Sort(direction, new String[]{"lastupdate"}));
 
         if (st.equalsIgnoreCase("all")) {
-            return this.kycJpaRepository.findAll(pageable).getContent();
+            if (authorized) {
+                return this.kycJpaRepository.findAll(pageable).getContent();
+            } else {
+                String uid = authentication.getName();
+                Optional<Kycinfo> kycinfo;
+                if ((kycinfo = this.kycJpaRepository.findByUid(uid)).isPresent()) {
+                    log.info("####################kyc indo find all:" + uid);
+                    Collection<Kycinfo> collection = new ArrayList<Kycinfo>();
+                    collection.add(kycinfo.get());
+                    return collection;
+                } else {
+                    throw new ContentNotFound();
+                }
+            }
         } else {
             Status status = Status.fromString(st);
             if (status != null)
@@ -125,36 +159,71 @@ class KycRestController {
     }
 
     @PostMapping
-    ResponseEntity<?> add(@RequestBody Kycinfo input) {
+    ResponseEntity<Kycinfo> add(@RequestBody Kycinfo input, Authentication authentication) {
         log.info("MTD:add DESC:add new kycinfo for users");
         //TODO: have to check validation user that insert is same to specific user (UID)
         //TODO: Test(operator shouldnt create kyc)
+        input.setUid(authentication.getName());
         Kycinfo kycInfo = kycJpaRepository.save(input);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{uid}")
-                .buildAndExpand(kycInfo.getId()).toUri();
-        return ResponseEntity.created(location).build();
+                .buildAndExpand(kycInfo.getUid()).toUri();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(location);
+        return new ResponseEntity<>(kycInfo, headers, HttpStatus.CREATED);
     }
 
 
     @PutMapping
-    ResponseEntity<?> update(@RequestBody Kycinfo input) {
+    ResponseEntity<Kycinfo> update(@RequestBody Kycinfo kycInput, Authentication authentication) {
         log.info("MTD:update DSC:update exist kycinfo");
         //TODO: have to check validation user that update is same to specific user(UID)
+        //TODO: CHECK Status Value not set in this system.
         //TODO: Test(operator shouldnt update kyc)
         //TODO: when update change lastUpdate to now();
-        if (kycJpaRepository.existsByUid(15)) {
-            input.setId(88L);
-            kycJpaRepository.save(input);
-            return ResponseEntity.noContent().build();
+
+        if (authentication.getName().equals(kycInput.getUid())) {
+        }
+        Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());//TODO: Check This UID and OTHER UID
+        if (optKycInfo.isPresent()) {
+            Kycinfo kycInfo = optKycInfo.get();
+            kycInfo.setCountry(kycInput.getCountry());
+            kycInfo.setFname(kycInput.getFname());
+            kycInfo.setLname(kycInput.getLname());
+            kycInfo.setGender(kycInput.getGender());
+            kycInfo.setLicenseid(kycInput.getLicenseid());
+            kycInfo.setLtype(kycInput.getLtype());
+            kycInfo.setLastupdate(new Date());
+
+            kycJpaRepository.save(kycInfo);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{uid}")
+                    .buildAndExpand(kycInfo.getUid()).toUri();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(location);
+            return new ResponseEntity<>(kycInfo, headers, HttpStatus.CREATED);
         } else {
             throw new ContentNotFound("This user id undefined");
         }
     }
 
+    @GetMapping("/status")
+    Map<String, Object> status(Authentication authentication) {
+        Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
+        Map<String, Object> status = new HashMap<>();
+
+        if (optKycInfo.isPresent()) {
+            Kycinfo kycinfo = optKycInfo.get();
+            status.put("uid", kycinfo.getUid());
+            status.put("status", kycinfo.getStatus());
+            return status;
+        } else {
+            throw new ContentNotFound("This user is invalid");
+        }
+    }
 
     @GetMapping("/{uid}/reject")
-    String reject(@PathVariable Integer uid) {
+    String reject(@PathVariable String uid) {
         Optional<Kycinfo> kycinfoOptional;
         //TODO: check role and permission
         if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
@@ -168,8 +237,9 @@ class KycRestController {
         }
     }
 
+
     @GetMapping("/{uid}/pending")
-    String pending(@PathVariable Integer uid) {
+    String pending(@PathVariable String uid) {
         //TODO: check role and permission
         Optional<Kycinfo> kycinfoOptional;
         if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
@@ -184,7 +254,7 @@ class KycRestController {
     }
 
     @GetMapping("/{uid}/accept")
-    String accept(@PathVariable Integer uid) {
+    String accept(@PathVariable String uid) {
         //TODO: check role and permission
         Optional<Kycinfo> kycinfoOptional;
         if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
@@ -222,7 +292,7 @@ class KycRestController {
             storageService.store(file, imageType);
             redirectAttributes.addFlashAttribute("message",
                     "You successfully uploaded " + file.getOriginalFilename() + "!");
-            return "";
+            return "OK";
         } else {
             throw new BadRequest("header key:imagetype is not found or invalid imagetype:[cover,passport,passid]");
         }

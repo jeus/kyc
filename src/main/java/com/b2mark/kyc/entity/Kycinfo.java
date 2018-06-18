@@ -15,9 +15,11 @@ import com.b2mark.kyc.enums.PostgreSQLEnumType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.*;
+
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
@@ -25,6 +27,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "kycinfo")
+@DynamicInsert
 @TypeDef(
         name = "pgsql_enum",
         typeClass = PostgreSQLEnumType.class
@@ -34,11 +37,10 @@ public class Kycinfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
     private Long id ;
     /*UserId persist in AAS system*/
-    @NotBlank
-    private Integer uid;
+    @NotBlank//36 char
+    private String uid;
     @NotNull
     private String fname;
     @NotNull
@@ -50,7 +52,7 @@ public class Kycinfo {
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
-    private Status status = Status.not_active;
+    private Status status = Status.pending;
 
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
@@ -62,13 +64,15 @@ public class Kycinfo {
     @NotNull
     private LicenseType ltype;
 
+    //@CreationTimestamp
+    @UpdateTimestamp
     @Column(name = "lastupdate", insertable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    @NotNull
+    @Basic(optional = false)
     private Date lastupdate;
 
 
-    public Kycinfo(Long id, Integer uid, String fname, String lname, String licenseid,
+    public Kycinfo(Long id, String uid, String fname, String lname, String licenseid,
                    Gender gender, LicenseType licenseType) {
         this.id = id;
         this.uid = uid;
