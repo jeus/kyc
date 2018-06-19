@@ -281,7 +281,7 @@ class KycRestController {
         }
     }
 
-    @GetMapping("/{uid}/{status}")
+    @PutMapping("/{uid}/{status}")
     ResponseEntity<KycStatus> changeStatus(@PathVariable String uid,@PathVariable String status,Authentication authentication) {
         Optional<Kycinfo> kycinfoOptional;
 
