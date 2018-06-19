@@ -21,17 +21,16 @@ import java.util.stream.Stream;
 public class FileSystemStorageService implements StorageService {
 
     private final Path rootLocation;
-    private final String jeusUid;
+    private final String type = ".jpg";
 
 
     @Autowired
     public FileSystemStorageService(StorageProperties properties) {
         this.rootLocation = Paths.get(properties.getLocation());
-        this.jeusUid = properties.getJeusUid();
     }
 
     @Override
-    public void store(MultipartFile file,ImageType imgType) {
+    public void store(MultipartFile file,ImageType imgType,String uid) {
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (file.isEmpty()) {
@@ -46,7 +45,7 @@ public class FileSystemStorageService implements StorageService {
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, imgType.getPath(rootLocation).resolve(
             //TODO: change jeusUid by user identification from cookie
-                        jeusUid),
+                        uid+type),
                     StandardCopyOption.REPLACE_EXISTING);
             }
         }
@@ -70,14 +69,14 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public Path load(String filename) {
-        return rootLocation.resolve(filename);
+        return rootLocation.resolve(filename+type);
     }
 
     @Override
-    public Resource loadAsResource(ImageType imageType) {
+    public Resource loadAsResource(ImageType imageType,String uid) {
         try {
             //TODO: change jeusUid by user identification from cookie
-            Path file = imageType.getPath(rootLocation).resolve(jeusUid);
+            Path file = imageType.getPath(rootLocation).resolve(uid+type);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;

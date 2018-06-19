@@ -11,13 +11,13 @@ public interface StorageService {
 
     void init();
 
-    void store(MultipartFile file , ImageType imgType);
+    void store(MultipartFile file , ImageType imgType,String uid);
 
     Stream<Path> loadAll();
 
-    Path load(String filename);
+    Path load(String uid);
 
-    Resource loadAsResource(ImageType imgType);
+    Resource loadAsResource(ImageType imgType,String uid);
 
     void deleteAll();
 

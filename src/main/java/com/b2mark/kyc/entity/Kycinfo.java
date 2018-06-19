@@ -92,6 +92,6 @@ public class Kycinfo {
     {
         String lastUpdateStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(lastupdate);
         return String.format("KYC Information:[id=%d, UId=%s, FName=%s, LName=%s, Gender=%s, LicenseType='%s'," +
-                " licenseId=%s], LastUpdate=%s",id,uid,fname,lname,gender,ltype,licenseid,lastUpdateStr);
+                " licenseId=%s , status=%s], LastUpdate=%s",id,uid,fname,lname,gender,ltype,licenseid,status,lastUpdateStr);
     }
 }
