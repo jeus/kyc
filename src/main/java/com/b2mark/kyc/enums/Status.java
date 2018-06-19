@@ -7,7 +7,6 @@
 package com.b2mark.kyc.enums;
 
 public enum Status {
-    not_active("not_active"),
     pending("pending"),
     accepted("accepted"),
     checking("checking"),

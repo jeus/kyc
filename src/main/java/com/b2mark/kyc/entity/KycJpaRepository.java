@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 public interface KycJpaRepository extends JpaRepository<Kycinfo, Long> {
-    Optional<Kycinfo> findByUid(Integer uid);
+    Optional<Kycinfo> findByUid(String uid);
     Collection<Kycinfo> findByStatus(Status status);
-    boolean existsByUid(Integer uid);
+    boolean existsByUid(String uid);
 }

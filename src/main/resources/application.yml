@@ -51,6 +51,12 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+  mvc:
+    dispatch-options-request: true
+  resources:
+      chain:
+        enabled: true
+
   servlet:
     multipart:
       max_file_size: 1200000
@@ -58,6 +64,8 @@ spring:
   http.multipart.enabled: true
 debug: true
 
-
+management:
+  security:
+    enabled: true
 
 

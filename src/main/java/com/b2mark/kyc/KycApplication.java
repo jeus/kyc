@@ -2,7 +2,7 @@
  * <h1>RestFul controll KYC</h1>
  * user can define kyc and operator can check validation od information<p>
  * <b>Note:</b> User can only define one KYC information<p>
- * every kyc information has 4 status. ['not_active','pending','accepted','rejected']
+ * every kyc information has 4 status. ['pending','accepted','rejected']
  *
  * @author b2mark
  * @version 1.0
@@ -20,9 +20,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.DispatcherServlet;
 
 @SpringBootApplication
 @EnableConfigurationProperties(StorageProperties.class)
@@ -44,5 +46,6 @@ public class KycApplication {
 
         };
     }
+
 
 }
