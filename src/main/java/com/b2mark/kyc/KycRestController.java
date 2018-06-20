@@ -99,7 +99,7 @@ class KycRestController {
      * @return
      */
     @ApiOperation("return kyc paginatio if not found 204 content not found")
-    @GetMapping(params = {"page", "size", "dir"}, produces = "application/json")
+    @GetMapping(produces = "application/json")
     @ApiResponses(
             value = {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
@@ -297,7 +297,7 @@ class KycRestController {
         {
             throw new BadRequest("status is not defined [pending,checking,rejected,accepted]");
         }
-        //TODO: check role and permission
+        //TODO: change role from keycloak rest service.
         if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
             log.info("####################kyc indo find all:" + uid);
             Kycinfo kycinfo = kycinfoOptional.get();

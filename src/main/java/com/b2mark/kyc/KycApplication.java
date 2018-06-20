@@ -43,9 +43,6 @@ public class KycApplication {
         return (args) -> {
             storageService.deleteAll();//TODO: have to delete this line.
             storageService.init();
-
         };
     }
-
-
 }

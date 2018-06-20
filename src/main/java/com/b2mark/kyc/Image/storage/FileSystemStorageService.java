@@ -44,7 +44,6 @@ public class FileSystemStorageService implements StorageService {
             }
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, imgType.getPath(rootLocation).resolve(
-            //TODO: change jeusUid by user identification from cookie
                         uid+type),
                     StandardCopyOption.REPLACE_EXISTING);
             }
@@ -75,7 +74,6 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public Resource loadAsResource(ImageType imageType,String uid) {
         try {
-            //TODO: change jeusUid by user identification from cookie
             Path file = imageType.getPath(rootLocation).resolve(uid+type);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
