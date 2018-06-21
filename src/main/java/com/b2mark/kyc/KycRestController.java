@@ -234,7 +234,7 @@ class KycRestController {
     }
 
     @ApiOperation("return status kyc paginatio if not found 204 content not found")
-    @GetMapping(path = "status", params = {"page", "size", "dir"}, produces = "application/json")
+    @GetMapping(path = "status", produces = "application/json")
     @ApiResponses(
             value = {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
