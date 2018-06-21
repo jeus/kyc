@@ -16,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.*;
-
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -73,7 +72,7 @@ public class Kycinfo {
 
 
     public Kycinfo(Long id, String uid, String fname, String lname, String licenseid,
-                   Gender gender, LicenseType licenseType) {
+                   Gender gender, LicenseType licenseType,String country) {
         this.id = id;
         this.uid = uid;
         this.fname = fname;
@@ -82,6 +81,7 @@ public class Kycinfo {
         this.gender = gender;
         this.ltype = licenseType;
         this.lastupdate= null;
+        this.country = country;
     }
 
     /**
