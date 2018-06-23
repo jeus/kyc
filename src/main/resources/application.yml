@@ -56,7 +56,8 @@ spring:
   resources:
       chain:
         enabled: true
-
+  application:
+    name: kyc 	#service name
   servlet:
     multipart:
       max_file_size: 1200000
@@ -67,5 +68,15 @@ debug: true
 management:
   security:
     enabled: true
-
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+  client:
+    serviceUrl:
+      defaultZone: http://87.98.188.77:8761/eureka/
+    healthcheck:
+      enabled: true
+    lease:
+      duration: 5
 
