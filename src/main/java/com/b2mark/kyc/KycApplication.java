@@ -42,7 +42,6 @@ public class KycApplication {
     @Bean
     public CommandLineRunner demo(KycCrudRepository kycCrudRepository,StorageService storageService) {
         return (args) -> {
-            storageService.deleteAll();//TODO: have to delete this line.
             storageService.init();
         };
     }
