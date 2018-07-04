@@ -12,9 +12,12 @@
 
 package com.b2mark.kyc;
 
+import com.b2mark.kyc.entity.Country;
+import com.b2mark.kyc.entity.CountryJpaRepository;
 import com.b2mark.kyc.entity.KycCrudRepository;
 import com.b2mark.kyc.image.storage.StorageProperties;
 import com.b2mark.kyc.image.storage.StorageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -23,7 +26,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
-import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @EnableEurekaClient
@@ -31,18 +38,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @EnableConfigurationProperties(StorageProperties.class)
 public class KycApplication {
 
+
+    public static Map<String,String> mapCountries = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(KycApplication.class);
 
     public static void main(String[] args) {
         SpringApplication.run(KycApplication.class, args);
     }
 
-    @RequestMapping("/kyc")
+
 
     @Bean
-    public CommandLineRunner demo(KycCrudRepository kycCrudRepository,StorageService storageService) {
+    public CommandLineRunner initial(CountryJpaRepository countryJpaRepository,StorageService storageService) {
         return (args) -> {
             storageService.init();
+
+            List<Country> countries = new ArrayList<>();
+            countries  = countryJpaRepository.findAll();
+            countries.forEach(country -> {mapCountries.put(country.getId(),country.getName());});
         };
     }
 }

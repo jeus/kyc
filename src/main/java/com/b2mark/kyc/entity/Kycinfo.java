@@ -12,6 +12,7 @@ import com.b2mark.kyc.enums.Gender;
 import com.b2mark.kyc.enums.Status;
 import com.b2mark.kyc.enums.LicenseType;
 import com.b2mark.kyc.enums.PostgreSQLEnumType;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -34,23 +36,30 @@ import java.util.Date;
 @Setter @Getter @NoArgsConstructor
 public class Kycinfo {
 
+    /*UserId persist in AAS system*/
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ApiModelProperty( readOnly = true)
     private Long id ;
-    /*UserId persist in AAS system*/
     @NotBlank//36 char
+    @ApiModelProperty(readOnly = true)
     private String uid;
     @NotNull
+    @Size(max=20)
+    @Size(min = 2)
     private String fname;
     @NotNull
+    @Size(max=20)
+    @Size(min = 2)
     private String lname;
     @NotNull
     private String licenseid;
     @NotNull
+    @Size(min = 2,max = 3)
     private String country;
-
     @Enumerated(EnumType.STRING)
     @Type( type = "pgsql_enum" )
+    @ApiModelProperty(readOnly = true)
     private Status status = Status.pending;
 
     @Enumerated(EnumType.STRING)
@@ -65,6 +74,7 @@ public class Kycinfo {
 
     //@CreationTimestamp
     @UpdateTimestamp
+    @ApiModelProperty(readOnly = true)
     @Column(name = "lastupdate", insertable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @Basic(optional = false)
