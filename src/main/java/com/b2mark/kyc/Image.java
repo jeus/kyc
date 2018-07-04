@@ -40,7 +40,7 @@ public class Image {
 
     @GetMapping("/{uid}/{imgtype}")
     @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable String uid, @PathVariable String imgtype) {
+    public ResponseEntity<Resource> getKycImageByUidAndImgType(@PathVariable String uid, @PathVariable String imgtype) {
 
         ImageType imageType = null;
         if ((imageType = ImageType.fromString(imgtype)) != null) {
@@ -56,7 +56,7 @@ public class Image {
     //TODO: not work have to change for work
 //    @GetMapping("/tumb/{uid}/{imgtype}")
 //    @ResponseBody
-    public ResponseEntity<BufferedImage> serveTumbFile(@PathVariable String uid, @PathVariable String imgtype) {
+    public ResponseEntity<BufferedImage> getKycThumbImageByUidandImgType(@PathVariable String uid, @PathVariable String imgtype) {
         BufferedImage bufferedImage = null;
         ImageType imageType = null;
         if ((imageType = ImageType.fromString(imgtype)) != null) {

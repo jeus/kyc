@@ -86,7 +86,7 @@ public class SwaggerConfig {
                .contact(new Contact(contactName,
                        url,
                        email))
-               .termsOfServiceUrl("Term Of Service")
+               .termsOfServiceUrl("www.b2mark.com/terms")
                .licenseUrl( "www.b2mark.com/license")
                .extensions(Collections.emptyList()).build();
 

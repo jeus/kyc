@@ -1,12 +1,12 @@
 info:
   app:
-    desc: kyc (know yourself customer)
+    desc: kyc (know your customer)
     name: kycinfo
     version: 1.0
     license: b2mark
     contact:
       email: info@b2mark.com
-      url: b2mark.com
+      url: http://www.b2mark.com
       name: b2mark
 logging:
   level:
@@ -58,11 +58,10 @@ spring:
         enabled: true
   application:
     name: kyc 	#service name
-  servlet:
+  http:
     multipart:
-      max_file_size: 1200000
-      max_request_size: 1200000
-  http.multipart.enabled: true
+      enabled: true
+    max-file-size: 1MB #upload file size
 debug: true
 
 management:

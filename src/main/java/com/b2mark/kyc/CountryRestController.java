@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,13 +26,6 @@ import java.util.Optional;
 public class CountryRestController {
 
     private static final Logger log = LoggerFactory.getLogger(CountryRestController.class);
-    private final CountryJpaRepository countryJpaRepository;
-
-    @Autowired
-    CountryRestController(CountryJpaRepository countryJpaRepository) {
-        this.countryJpaRepository = countryJpaRepository;
-
-    }
 
     /**
      * return list of country from database.
@@ -40,7 +34,9 @@ public class CountryRestController {
     @ApiOperation(value="list of country in the world")
     @GetMapping(produces = "application/json")
     List<Country> allcountry() {
-        return this.countryJpaRepository.findAll();
+        List<Country> countries = new ArrayList<>();
+        KycApplication.mapCountries.forEach((k,v) -> {countries.add(new Country(k,v));});
+        return countries;
     }
 
 
@@ -58,11 +54,11 @@ public class CountryRestController {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
             }
     )
-    Optional<Country> cidCountry(@PathVariable(value = "cid", required = true) String cid) {
-        Optional<Country> country;
-        if ((country = this.countryJpaRepository.findById(cid)).isPresent()) {
+    Country cidCountry(@PathVariable(value = "cid", required = true) String cid) {
+        String name = null;
+        if ((name = KycApplication.mapCountries.get(cid)) != null) {
             log.info("####################country  find all:" + cid);
-            return country;
+            return  new Country(cid,name);
         } else {
             throw new ContentNotFound();
         }
