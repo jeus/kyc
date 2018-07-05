@@ -1,5 +1,6 @@
 package com.b2mark.kyc.swagger;
 
+import com.fasterxml.classmate.TypeResolver;
 import com.google.common.base.Predicates;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,9 @@ import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.OAuthBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.schema.AlternateTypeRule;
+import springfox.documentation.schema.AlternateTypeRules;
+import springfox.documentation.schema.WildcardType;
 import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
@@ -17,9 +21,8 @@ import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Configuration
 @EnableSwagger2
@@ -49,7 +52,17 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         final ApiInfo apiInfo = apiInfo();
+        TypeResolver typeResolver = new TypeResolver();
+        AlternateTypeRule collectionRule
+                = AlternateTypeRules.newRule(
+                //replace Collection<T> for any T
+                typeResolver.resolve(Optional.class, WildcardType.class),
+                //with List<T> for any T
+                typeResolver.resolve(WildcardType.class));
+
+
         return new Docket(DocumentationType.SWAGGER_2)
+                .alternateTypeRules(collectionRule, AlternateTypeRules.newRule(LocalDateTime.class, Date.class))
                 .select().apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
                 .paths(Predicates.not(PathSelectors.regex("/error.*")))

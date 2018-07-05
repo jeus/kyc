@@ -96,7 +96,7 @@ class KycRestController {
      * @return
      */
 
-    @ApiOperation("return kyc paginatio if not found 204 content not found")
+    @ApiOperation(value = "return kyc paginatio if not found 204 content not found")
     @GetMapping(produces = "application/json")
     @ApiResponses(
             value = {
