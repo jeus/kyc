@@ -14,7 +14,6 @@ logging:
       springframework:
         security: DEBUG
       hibernate: DEBUG
-
 server:
   contextPath: /kyc/
   use-forward-headers: true
@@ -78,4 +77,11 @@ eureka:
       enabled: true
     lease:
       duration: 5
-
+storage:
+  endpoint:
+    - uripath: /img
+      dirpath: upload-dir
+      filepermit: jpeg,jpg,png,gif
+    - uripath: /doc
+      dirpath: doc_upload
+      filepermit: doc,docx

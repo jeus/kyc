@@ -1,4 +1,10 @@
-package com.b2mark.kyc.image.storage;
+/**
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
+
+package com.b2mark.kyc.image.storage.exception;
 
 public class StorageException extends RuntimeException {
 

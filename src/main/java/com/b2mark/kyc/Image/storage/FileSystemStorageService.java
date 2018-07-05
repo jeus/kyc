@@ -1,6 +1,14 @@
+/**
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
+
 package com.b2mark.kyc.image.storage;
 
 import com.b2mark.kyc.enums.ImageType;
+import com.b2mark.kyc.image.storage.exception.StorageException;
+import com.b2mark.kyc.image.storage.exception.StorageFileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -13,24 +21,24 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
 @Service
 public class FileSystemStorageService implements StorageService {
 
-    private final Path rootLocation;
+    private final StorageProp storageProp;
     private final String type = ".jpg";
 
 
     @Autowired
-    public FileSystemStorageService(StorageProperties properties) {
-        this.rootLocation = Paths.get(properties.getLocation());
+    public FileSystemStorageService(StorageProp storageProp) {
+       this.storageProp = storageProp;
     }
 
     @Override
-    public void store(MultipartFile file,ImageType imgType,String uid) {
+    public void store(MultipartFile file,ImageType imgType,String uid,String uriPath) {
+        StorageProp.Endpoints endpoint = findEndPoint(uriPath);
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (file.isEmpty()) {
@@ -42,9 +50,13 @@ public class FileSystemStorageService implements StorageService {
                         "Cannot store file with relative path outside current directory "
                                 + filename);
             }
+            if(!isValidContentType(endpoint,file.getContentType()))
+            {
+                throw new StorageException("this content type is not valid valid content type is ["+endpoint.getFilePermits()+"]");
+            }
             try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, imgType.getPath(rootLocation).resolve(
-                        uid+type),
+                Files.copy(inputStream, imgType.getPath(endpoint.getPath()).
+                                resolve(uid+type),//TODO: have to change master file type.
                     StandardCopyOption.REPLACE_EXISTING);
             }
         }
@@ -54,11 +66,16 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Stream<Path> loadAll() {
+    public Stream<Path> loadAll(String uriPath) {
+        StorageProp.Endpoints endpoint = findEndPoint(uriPath);
+        if(endpoint == null)
+        {
+            throw new StorageException("This upload URI 'directorectory path' is not valid");
+        }
         try {
-            return Files.walk(this.rootLocation, 1)
-                .filter(path -> !path.equals(this.rootLocation))
-                .map(this.rootLocation::relativize);
+            return Files.walk(endpoint.getPath(), 1)
+                .filter(path -> !path.equals(endpoint.getPath()))
+                .map(endpoint.getPath()::relativize);
         }
         catch (IOException e) {
             throw new StorageException("Failed to read stored files", e);
@@ -67,14 +84,17 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Path load(String filename) {
-        return rootLocation.resolve(filename+type);
-    }
+    public Path load(String fileName,String uriPath) {
+        StorageProp.Endpoints endpoint = findEndPoint(uriPath);
+        return endpoint.getPath().resolve(fileName+type);
+    }//TODO:change type .jpg
 
     @Override
-    public Resource loadAsResource(ImageType imageType,String uid) {
+    public Resource loadAsResource(ImageType imageType,String uid,String uriPath) {
+        StorageProp.Endpoints endpoint = findEndPoint(uriPath);
+
         try {
-            Path file = imageType.getPath(rootLocation).resolve(uid+type);
+            Path file = imageType.getPath(endpoint.getPath()).resolve(uid+type);
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
@@ -82,7 +102,6 @@ public class FileSystemStorageService implements StorageService {
             else {
                 throw new StorageFileNotFoundException(
                         "Could not read file: " + "");
-
             }
         }
         catch (MalformedURLException e) {
@@ -91,20 +110,41 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public void deleteAll() {
-        FileSystemUtils.deleteRecursively(rootLocation.toFile());
+    public void deleteAll(String uriPath) {
+        StorageProp.Endpoints endpoint = findEndPoint(uriPath);
+        FileSystemUtils.deleteRecursively(endpoint.getPath().toFile());
     }
 
     @Override
-    public void init() {
+    public void init(String uriPath) {
+        StorageProp.Endpoints endpoint = null;
+        if((endpoint = findEndPoint(uriPath))== null)
+        {
+            return;
+        }
         try {
-            Files.createDirectories(rootLocation);
-            Files.createDirectories(ImageType.cover.getPath(rootLocation));
-            Files.createDirectories(ImageType.passport.getPath(rootLocation));
-            Files.createDirectories(ImageType.passid.getPath(rootLocation));
+            Files.createDirectories(endpoint.getPath());
+            Files.createDirectories(ImageType.cover.getPath(endpoint.getPath()));
+            Files.createDirectories(ImageType.passport.getPath(endpoint.getPath()));
+            Files.createDirectories(ImageType.passid.getPath(endpoint.getPath()));
         }
         catch (IOException e) {
             throw new StorageException("Could not initialize storage", e);
         }
     }
+
+    private Boolean isValidContentType(StorageProp.Endpoints endpoints ,String contentType) {
+        return endpoints.isValidFormatFile(contentType.substring(contentType.indexOf('/')+1));
+    }
+
+
+    private StorageProp.Endpoints findEndPoint(String uriPath)
+    {
+        return storageProp.getEndpoint().stream()
+                .filter(args -> uriPath.equalsIgnoreCase(args.getUriPath()))
+                .findAny().orElse(null);
+    }
+
+
+
 }

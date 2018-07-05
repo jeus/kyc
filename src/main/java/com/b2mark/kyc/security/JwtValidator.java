@@ -1,8 +1,11 @@
+/**
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
 package com.b2mark.kyc.security;
 
 import com.b2mark.kyc.entity.jwt.JwtUser;
-import com.b2mark.kyc.entity.jwt.RealmAccess;
-import com.b2mark.kyc.entity.jwt.ResourceAccess;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,7 +14,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 
 @Component
 public class JwtValidator {

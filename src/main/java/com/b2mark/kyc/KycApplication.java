@@ -14,16 +14,12 @@ package com.b2mark.kyc;
 
 import com.b2mark.kyc.entity.Country;
 import com.b2mark.kyc.entity.CountryJpaRepository;
-import com.b2mark.kyc.entity.KycCrudRepository;
-import com.b2mark.kyc.image.storage.StorageProperties;
 import com.b2mark.kyc.image.storage.StorageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 
@@ -35,7 +31,7 @@ import java.util.Map;
 
 @EnableEurekaClient
 @SpringBootApplication
-@EnableConfigurationProperties(StorageProperties.class)
+//@EnableConfigurationProperties(StorageProp.class)
 public class KycApplication {
 
 
@@ -46,12 +42,10 @@ public class KycApplication {
         SpringApplication.run(KycApplication.class, args);
     }
 
-
-
     @Bean
     public CommandLineRunner initial(CountryJpaRepository countryJpaRepository,StorageService storageService) {
         return (args) -> {
-            storageService.init();
+            storageService.init("/img");
 
             List<Country> countries = new ArrayList<>();
             countries  = countryJpaRepository.findAll();

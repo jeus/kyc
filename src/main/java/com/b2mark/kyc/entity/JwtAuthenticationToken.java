@@ -1,3 +1,9 @@
+/**
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
+
 package com.b2mark.kyc.entity;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

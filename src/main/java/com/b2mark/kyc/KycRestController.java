@@ -335,7 +335,7 @@ class KycRestController {
 
         ImageType imageType = null;
         if ((imageType = ImageType.fromString(imgtype)) != null) {
-            Resource file = storageService.loadAsResource(imageType,authentication.getName());
+            Resource file = storageService.loadAsResource(imageType,authentication.getName(),"/img");
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment; filename=\"" + file.getFilename() + "\"").body(file);
         } else {
@@ -359,7 +359,7 @@ class KycRestController {
             }
         }
         if ((imageType = ImageType.fromString(imgtypeStr)) != null) {
-            storageService.store(file, imageType,authentication.getName());
+            storageService.store(file, imageType,authentication.getName(),"/img");
             redirectAttributes.addFlashAttribute("message",
                     "You successfully uploaded " + file.getOriginalFilename() + "!");
             return "OK";
