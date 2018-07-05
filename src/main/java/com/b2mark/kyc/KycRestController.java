@@ -103,7 +103,7 @@ class KycRestController {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
             }
     )
-    Collection<Kycinfo> getAllKyc(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
+    Collection<Kycinfo> getAllKyces(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                    @RequestParam(value = "size", defaultValue = "10", required = false) int size,
                                    @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
                                    @RequestParam(value = "status", defaultValue = "all", required = false) String st, Authentication authentication) {
@@ -252,7 +252,7 @@ class KycRestController {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
             }
     )
-   Collection<KycStatus> getAllKycStatus(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
+   Collection<KycStatus> getAllKycStatuses(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                     @RequestParam(value = "size", defaultValue = "10", required = false) int size,
                                     @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
                                     @RequestParam(value = "status", defaultValue = "all", required = false) String st, Authentication authentication) {

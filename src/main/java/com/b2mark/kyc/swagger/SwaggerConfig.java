@@ -1,5 +1,6 @@
 package com.b2mark.kyc.swagger;
 
+import com.google.common.base.Predicates;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +50,10 @@ public class SwaggerConfig {
     public Docket api() {
         final ApiInfo apiInfo = apiInfo();
         return new Docket(DocumentationType.SWAGGER_2)
-                .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build().apiInfo(apiInfo);
+                .select().apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any())
+                .paths(Predicates.not(PathSelectors.regex("/error.*")))
+                .build().apiInfo(apiInfo);
     }
 
     @Bean
@@ -69,6 +73,7 @@ public class SwaggerConfig {
     /**
      * disable validatorURL the section on swagger_ui that check all APIs.
      * security
+     *
      * @return
      */
     @Bean
@@ -80,15 +85,15 @@ public class SwaggerConfig {
     }
 
     private ApiInfo apiInfo() {
-       return new ApiInfoBuilder().title(serviceName)
-               .description(serviceDesc)
-               .version(version).license(license)
-               .contact(new Contact(contactName,
-                       url,
-                       email))
-               .termsOfServiceUrl("www.b2mark.com/terms")
-               .licenseUrl( "www.b2mark.com/license")
-               .extensions(Collections.emptyList()).build();
+        return new ApiInfoBuilder().title(serviceName)
+                .description(serviceDesc)
+                .version(version).license(license)
+                .contact(new Contact(contactName,
+                        url,
+                        email))
+                .termsOfServiceUrl("www.b2mark.com/terms")
+                .licenseUrl("www.b2mark.com/license")
+                .extensions(Collections.emptyList()).build();
 
     }
 
@@ -96,8 +101,8 @@ public class SwaggerConfig {
     @Bean
     List<GrantType> grantTypes() {
         List<GrantType> grantTypes = new ArrayList<>();
-        TokenRequestEndpoint tokenRequestEndpoint = new TokenRequestEndpoint(oAuthServerUri+"/oauth/authorize", clientId, clientSecret );
-        TokenEndpoint tokenEndpoint = new TokenEndpoint(oAuthServerUri+"/oauth/token", "token");
+        TokenRequestEndpoint tokenRequestEndpoint = new TokenRequestEndpoint(oAuthServerUri + "/oauth/authorize", clientId, clientSecret);
+        TokenEndpoint tokenEndpoint = new TokenEndpoint(oAuthServerUri + "/oauth/token", "token");
         grantTypes.add(new AuthorizationCodeGrant(tokenRequestEndpoint, tokenEndpoint));
         return grantTypes;
     }
@@ -113,9 +118,9 @@ public class SwaggerConfig {
 
     private List<AuthorizationScope> scopes() {
         List<AuthorizationScope> list = new ArrayList();
-        list.add(new AuthorizationScope("read_scope","Grants read access"));
-        list.add(new AuthorizationScope("write_scope","Grants write access"));
-        list.add(new AuthorizationScope("admin_scope","Grants read write and delete access"));
+        list.add(new AuthorizationScope("read_scope", "Grants read access"));
+        list.add(new AuthorizationScope("write_scope", "Grants write access"));
+        list.add(new AuthorizationScope("admin_scope", "Grants read write and delete access"));
         return list;
     }
 
