@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,10 +48,11 @@ public class KycApplication {
     public CommandLineRunner initial(CountryJpaRepository countryJpaRepository,StorageService storageService) {
         return (args) -> {
             storageService.init("/img");
-
             List<Country> countries = new ArrayList<>();
             countries  = countryJpaRepository.findAll();
             countries.forEach(country -> {mapCountries.put(country.getId(),country.getName());});
+            //TODO: have to delete this v
+            Authentication authentication = new UsernamePasswordAuthenticationToken("test","test");
         };
     }
 }
