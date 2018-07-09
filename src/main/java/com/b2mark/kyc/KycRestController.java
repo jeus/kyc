@@ -305,7 +305,7 @@ class KycRestController {
 
     @Secured("webapp-admin,ROLE_KYCHECKER")
     @PutMapping("/{uid}/{status}")
-    ResponseEntity<KycStatus> editStatus(@PathVariable String uid, @PathVariable String status, Authentication authentication) {
+    ResponseEntity<KycStatus> editKycStatus(@PathVariable String uid, @PathVariable String status, Authentication authentication) {
         Optional<Kycinfo> kycinfoOptional;
 
         boolean authorized =
