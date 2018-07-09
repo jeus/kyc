@@ -69,18 +69,18 @@ public class SwaggerConfig {
                 .build().apiInfo(apiInfo);
     }
 
-    @Bean
-    SecurityConfiguration security() {
-        return SecurityConfigurationBuilder.builder()
-                .clientId("swaggerkyc")
-                .clientSecret("98526a6b-921d-4d0f-b599-8318f8e0a7c7")
-                .realm("Master")
-                .appName("kycinfo")
-                .scopeSeparator(",")
-                .additionalQueryStringParams(null)
-                .useBasicAuthenticationWithAccessCodeGrant(false)
-                .build();
-    }
+//    @Bean
+//    SecurityConfiguration security() {
+//        return SecurityConfigurationBuilder.builder()
+//                .clientId("swaggerkyc")
+//                .clientSecret("98526a6b-921d-4d0f-b599-8318f8e0a7c7")
+//                .realm("Master")
+//                .appName("kycinfo")
+//                .scopeSeparator(",")
+//                .additionalQueryStringParams(null)
+//                .useBasicAuthenticationWithAccessCodeGrant(false)
+//                .build();
+//    }
 
 
     /**
@@ -111,31 +111,31 @@ public class SwaggerConfig {
     }
 
 
-    @Bean
-    List<GrantType> grantTypes() {
-        List<GrantType> grantTypes = new ArrayList<>();
-        TokenRequestEndpoint tokenRequestEndpoint = new TokenRequestEndpoint(oAuthServerUri + "/oauth/authorize", clientId, clientSecret);
-        TokenEndpoint tokenEndpoint = new TokenEndpoint(oAuthServerUri + "/oauth/token", "token");
-        grantTypes.add(new AuthorizationCodeGrant(tokenRequestEndpoint, tokenEndpoint));
-        return grantTypes;
-    }
+////    @Bean
+//    List<GrantType> grantTypes() {
+//        List<GrantType> grantTypes = new ArrayList<>();
+//        TokenRequestEndpoint tokenRequestEndpoint = new TokenRequestEndpoint(oAuthServerUri + "/oauth/authorize", clientId, clientSecret);
+//        TokenEndpoint tokenEndpoint = new TokenEndpoint(oAuthServerUri + "/oauth/token", "token");
+//        grantTypes.add(new AuthorizationCodeGrant(tokenRequestEndpoint, tokenEndpoint));
+//        return grantTypes;
+//    }
 
-    @Bean
-    SecurityScheme oauth() {
-        return new OAuthBuilder()
-                .name("OAuth2")
-                .scopes(scopes())
-                .grantTypes(grantTypes())
-                .build();
-    }
+////    @Bean
+//    SecurityScheme oauth() {
+//        return new OAuthBuilder()
+//                .name("OAuth2")
+//                .scopes(scopes())
+//                .grantTypes(grantTypes())
+//                .build();
+//    }
 
-    private List<AuthorizationScope> scopes() {
-        List<AuthorizationScope> list = new ArrayList();
-        list.add(new AuthorizationScope("read_scope", "Grants read access"));
-        list.add(new AuthorizationScope("write_scope", "Grants write access"));
-        list.add(new AuthorizationScope("admin_scope", "Grants read write and delete access"));
-        return list;
-    }
+//    private List<AuthorizationScope> scopes() {
+//        List<AuthorizationScope> list = new ArrayList();
+//        list.add(new AuthorizationScope("read_scope", "Grants read access"));
+//        list.add(new AuthorizationScope("write_scope", "Grants write access"));
+//        list.add(new AuthorizationScope("admin_scope", "Grants read write and delete access"));
+//        return list;
+//    }
 
 
 }

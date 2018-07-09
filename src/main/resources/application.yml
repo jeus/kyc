@@ -14,12 +14,12 @@ logging:
       springframework:
         security: DEBUG
       hibernate: DEBUG
-
 server:
-  contextPath: /kyc/
   use-forward-headers: true
   port: 9092
   host: kyc.b2mark.com
+  servlet:
+    context-path: /kyc
 
 uaa:
   url: ${UAA_URI:http://localhost:8080/uaa}
@@ -60,13 +60,11 @@ spring:
     name: kyc 	#service name
   http:
     multipart:
-      enabled: true
     max-file-size: 1MB #upload file size
 debug: true
 
 management:
   security:
-    enabled: true
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 1
@@ -78,4 +76,11 @@ eureka:
       enabled: true
     lease:
       duration: 5
-
+storage:
+  endpoint:
+    - uripath: /img
+      dirpath: upload-dir
+      filepermit: jpeg,jpg,png,gif
+    - uripath: /doc
+      dirpath: doc_upload
+      filepermit: doc,docx

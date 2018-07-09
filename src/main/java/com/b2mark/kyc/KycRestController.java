@@ -33,6 +33,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -46,7 +48,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/kyc")
-@EnableGlobalMethodSecurity(securedEnabled = true)
+//@EnableGlobalMethodSecurity(securedEnabled = true)
 @Api()
 @CrossOrigin(origins = {"http://avazcoin.com", "http://staging1.b2mark.com"})
 class KycRestController {
@@ -56,13 +58,16 @@ class KycRestController {
     private final KycJpaRepository kycJpaRepository;
     private final StorageService storageService;
     private final CountryJpaRepository countryJpaRepository;
+//    private final Authentication authentication;
 
 
     @Autowired
-    KycRestController(KycJpaRepository kycJpaRepository, StorageService storageService, CountryJpaRepository countryJpaRepository) {
+    KycRestController(KycJpaRepository kycJpaRepository, StorageService storageService,
+                      CountryJpaRepository countryJpaRepository) {
         this.kycJpaRepository = kycJpaRepository;
         this.storageService = storageService;
         this.countryJpaRepository = countryJpaRepository;
+//        this.authentication = authentication;
     }
 
     /**
@@ -104,9 +109,9 @@ class KycRestController {
             }
     )
     Collection<Kycinfo> getAllKyces(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                   @RequestParam(value = "size", defaultValue = "10", required = false) int size,
-                                   @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
-                                   @RequestParam(value = "status", defaultValue = "all", required = false) String st, Authentication authentication) {
+                                    @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+                                    @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
+                                    @RequestParam(value = "status", defaultValue = "all", required = false) String st, Authentication authentication) {
         boolean authorized =
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
                         authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
@@ -145,17 +150,17 @@ class KycRestController {
     }
 
 
-    @ApiModelProperty(value = "uid",required = false)
+    @ApiModelProperty(value = "uid", required = false)
     @PostMapping
     ResponseEntity<Kycinfo> addKyc(@RequestBody Kycinfo input, Authentication authentication) {
         log.info("MTD:add DESC:add new kycinfo for users");
-        if(kycJpaRepository.existsByUid(authentication.getName()))//Check uid registered.
+        if (kycJpaRepository.existsByUid(authentication.getName()))//Check uid registered.
         {
             throw new BadRequest("Kyc for this user registerd before that");
         }
-        if(KycApplication.mapCountries.get(input.getCountry()) == null)//Check country id valid
+        if (KycApplication.mapCountries.get(input.getCountry()) == null)//Check country id valid
         {
-            throw new BadRequest("Country ID is not Valid "+input.getCountry());
+            throw new BadRequest("Country ID is not Valid " + input.getCountry());
         }
         input.setUid(authentication.getName());
         Kycinfo kycInfo = kycJpaRepository.save(input);
@@ -178,9 +183,8 @@ class KycRestController {
                 if (kycInfo.getStatus().equals(Status.checking)) {
                     throw new Unauthorized("You cant update information. Our Operators are checking your data. Please Wait");
                 }
-                if(KycApplication.mapCountries.get(kycInput.getCountry()) == null)
-                {
-                    throw new BadRequest("Country ID is not Valid "+kycInput.getCountry());
+                if (KycApplication.mapCountries.get(kycInput.getCountry()) == null) {
+                    throw new BadRequest("Country ID is not Valid " + kycInput.getCountry());
                 }
                 kycInfo.setCountry(kycInput.getCountry());
                 kycInfo.setFname(kycInput.getFname());
@@ -210,7 +214,7 @@ class KycRestController {
         Map<String, Object> status = new HashMap<>();
         if (optKycInfo.isPresent()) {
             Kycinfo kycinfo = optKycInfo.get();
-            KycStatus kycStatus = new KycStatus(kycinfo.getUid(),kycinfo.getStatus());
+            KycStatus kycStatus = new KycStatus(kycinfo.getUid(), kycinfo.getStatus());
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest().path("status/{uid}")
                     .buildAndExpand(kycStatus.getUid()).toUri();
@@ -223,7 +227,7 @@ class KycRestController {
     }
 
     @ApiOperation(value = "list of status (know your customer) by uid (user identification)")
-    @GetMapping(path = "status/{uid}", produces = "application/json")
+    @GetMapping(path = "/status/{uid}", produces = "application/json")
     @ApiResponses(
             value = {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
@@ -233,7 +237,7 @@ class KycRestController {
         Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
         if (optKycInfo.isPresent()) {
             Kycinfo kycinfo = optKycInfo.get();
-            KycStatus kycStatus = new KycStatus(kycinfo.getUid(),kycinfo.getStatus());
+            KycStatus kycStatus = new KycStatus(kycinfo.getUid(), kycinfo.getStatus());
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest().path("kyc/{uid}")
                     .buildAndExpand(kycStatus.getUid()).toUri();
@@ -246,7 +250,7 @@ class KycRestController {
     }
 
     @ApiOperation("return status kyc paginatio if not found 204 content not found")
-    @GetMapping(path = "status", produces = "application/json")
+    @GetMapping(path = "/status", produces = "application/json")
     @ApiResponses(
             value = {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
@@ -273,7 +277,7 @@ class KycRestController {
             List<Kycinfo> kycinfos = this.kycJpaRepository.findAll(pageable).getContent();
             if (kycinfos.size() != 0 && kycinfos != null) {
                 kycinfos.forEach(args -> {
-                    KycStatus kycStatus = new KycStatus(args.getUid(),args.getStatus());
+                    KycStatus kycStatus = new KycStatus(args.getUid(), args.getStatus());
                     statusList.add(kycStatus);
                 });
                 return statusList;
@@ -284,7 +288,7 @@ class KycRestController {
             Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
             if (optKycInfo.isPresent()) {
                 Kycinfo kycinfo = optKycInfo.get();
-                KycStatus kycStatus = new KycStatus(kycinfo.getUid(),kycinfo.getStatus());
+                KycStatus kycStatus = new KycStatus(kycinfo.getUid(), kycinfo.getStatus());
                 statusList.add(kycStatus);
                 return statusList;
             } else {
@@ -293,20 +297,25 @@ class KycRestController {
         }
     }
 
+    @GetMapping(path = "/status/test", produces = "application/json")
+    public String checkStatus() {
+        return "OK DARE DOROST kar mikone";
+    }
+
+
+    @Secured("webapp-admin,ROLE_KYCHECKER")
     @PutMapping("/{uid}/{status}")
-    ResponseEntity<KycStatus> editStatus(@PathVariable String uid,@PathVariable String status,Authentication authentication) {
+    ResponseEntity<KycStatus> editKycStatus(@PathVariable String uid, @PathVariable String status, Authentication authentication) {
         Optional<Kycinfo> kycinfoOptional;
 
         boolean authorized =
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
                         authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
-        if (!authorized)
-        {
+        if (!authorized) {
             throw new Unauthorized("You don't have permission to change status");
         }
         Status status1 = Status.fromString(status);
-        if(status1 == null)
-        {
+        if (status1 == null) {
             throw new BadRequest("status is not defined [pending,checking,rejected,accepted]");
         }
         //TODO: change role from keycloak rest service.
@@ -316,7 +325,7 @@ class KycRestController {
             kycinfo.setStatus(status1);
             kycJpaRepository.save(kycinfo);
 
-            KycStatus kycStatus = new KycStatus(kycinfo.getUid(),kycinfo.getStatus());
+            KycStatus kycStatus = new KycStatus(kycinfo.getUid(), kycinfo.getStatus());
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest().path("kyc/{uid}")
                     .buildAndExpand(kycStatus.getUid()).toUri();
@@ -331,11 +340,11 @@ class KycRestController {
 
     @GetMapping("/img/{imgtype}")
     @ResponseBody
-    public ResponseEntity<Resource> getKycImage(@PathVariable String imgtype,Authentication authentication) {
+    public ResponseEntity<Resource> getKycImage(@PathVariable String imgtype, Authentication authentication) {
 
         ImageType imageType = null;
         if ((imageType = ImageType.fromString(imgtype)) != null) {
-            Resource file = storageService.loadAsResource(imageType,authentication.getName());
+            Resource file = storageService.loadAsResource(imageType, authentication.getName(), "/img");
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment; filename=\"" + file.getFilename() + "\"").body(file);
         } else {
@@ -345,8 +354,8 @@ class KycRestController {
 
     @PostMapping("/img")
     public String addKycImage(@RequestParam("file") MultipartFile file,
-                                   @RequestParam("imgtype") String imgtypeStr,
-                                   RedirectAttributes redirectAttributes, Authentication authentication) {
+                              @RequestParam("imgtype") String imgtypeStr,
+                              RedirectAttributes redirectAttributes, Authentication authentication) {
         ImageType imageType = null;
         Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
         if (optKycInfo.isPresent()) {
@@ -359,7 +368,7 @@ class KycRestController {
             }
         }
         if ((imageType = ImageType.fromString(imgtypeStr)) != null) {
-            storageService.store(file, imageType,authentication.getName());
+            storageService.store(file, imageType, authentication.getName(), "/img");
             redirectAttributes.addFlashAttribute("message",
                     "You successfully uploaded " + file.getOriginalFilename() + "!");
             return "OK";

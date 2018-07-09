@@ -1,7 +1,10 @@
+/**
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
 package com.b2mark.kyc;
 
-import com.b2mark.kyc.entity.CountryJpaRepository;
-import com.b2mark.kyc.entity.KycJpaRepository;
 import com.b2mark.kyc.enums.ImageType;
 import com.b2mark.kyc.exception.BadRequest;
 import com.b2mark.kyc.exception.ContentNotFound;
@@ -44,7 +47,7 @@ public class Image {
 
         ImageType imageType = null;
         if ((imageType = ImageType.fromString(imgtype)) != null) {
-            Resource file = storageService.loadAsResource(imageType, uid);
+            Resource file = storageService.loadAsResource(imageType, uid,"/img");
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment; filename=\"" + file.getFilename() + "\"").body(file);
         } else {
@@ -60,7 +63,7 @@ public class Image {
         BufferedImage bufferedImage = null;
         ImageType imageType = null;
         if ((imageType = ImageType.fromString(imgtype)) != null) {
-            Resource file = storageService.loadAsResource(imageType, uid);
+            Resource file = storageService.loadAsResource(imageType, uid,"/img");
             try {
                 File pathToFile = new File(file.getURI());
                 BufferedImage image = ImageIO.read(pathToFile);
@@ -84,7 +87,6 @@ public class Image {
     private BufferedImage createResizedCopy(BufferedImage originalImage,
                                             int scaledWidth, int scaledHeight,
                                             boolean preserveAlpha) {
-        System.out.println("resizing...");
         int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
         BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
         Graphics2D g = scaledBI.createGraphics();
