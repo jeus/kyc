@@ -26,6 +26,7 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,15 +34,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.net.URI;
 import java.util.*;
@@ -58,7 +58,6 @@ class KycRestController {
     private final KycJpaRepository kycJpaRepository;
     private final StorageService storageService;
     private final CountryJpaRepository countryJpaRepository;
-//    private final Authentication authentication;
 
 
     @Autowired
@@ -67,7 +66,6 @@ class KycRestController {
         this.kycJpaRepository = kycJpaRepository;
         this.storageService = storageService;
         this.countryJpaRepository = countryJpaRepository;
-//        this.authentication = authentication;
     }
 
     /**
@@ -84,8 +82,15 @@ class KycRestController {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
             }
     )
-    Optional<Kycinfo> getKycByUid(@PathVariable(value = "uid", required = true) String uid) {
+    Optional<Kycinfo> getKycByUid(@PathVariable(value = "uid", required = true) String uid, @ApiIgnore Authentication authentication) {
         Optional<Kycinfo> kycinfo;
+        boolean authorized =
+                authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
+                        authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
+
+        if (!authorized || !authentication.getName().equals(uid)) {
+            throw new Unauthorized("You don't have permission");
+        }
         if ((kycinfo = this.kycJpaRepository.findByUid(uid)).isPresent()) {
             log.info("####################kyc indo find all:" + uid);
             return kycinfo;
@@ -111,12 +116,11 @@ class KycRestController {
     Collection<Kycinfo> getAllKyces(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                     @RequestParam(value = "size", defaultValue = "10", required = false) int size,
                                     @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
-                                    @RequestParam(value = "status", defaultValue = "all", required = false) String st, Authentication authentication) {
+                                    @RequestParam(value = "status", defaultValue = "all", required = false) String st, @ApiIgnore Authentication authentication) {
+
         boolean authorized =
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
                         authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
-
-
         Sort.Direction direction = Sort.Direction.ASC;
         if (dir.toLowerCase().equals("asc")) {
             direction = Sort.Direction.ASC;
@@ -152,7 +156,7 @@ class KycRestController {
 
     @ApiModelProperty(value = "uid", required = false)
     @PostMapping
-    ResponseEntity<Kycinfo> addKyc(@RequestBody Kycinfo input, Authentication authentication) {
+    ResponseEntity<Kycinfo> addKyc(@RequestBody Kycinfo input, @ApiIgnore Authentication authentication) {
         log.info("MTD:add DESC:add new kycinfo for users");
         if (kycJpaRepository.existsByUid(authentication.getName()))//Check uid registered.
         {
@@ -209,7 +213,7 @@ class KycRestController {
     }
 
     @GetMapping("/status")
-    ResponseEntity<KycStatus> getStatus(Authentication authentication) {
+    ResponseEntity<KycStatus> getStatus(@ApiIgnore Authentication authentication) {
         Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
         Map<String, Object> status = new HashMap<>();
         if (optKycInfo.isPresent()) {
@@ -233,7 +237,7 @@ class KycRestController {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
             }
     )
-    ResponseEntity<KycStatus> getKycStatusByUid(@PathVariable(value = "uid", required = false) String uid, Authentication authentication) {
+    ResponseEntity<KycStatus> getKycStatusByUid(@PathVariable(value = "uid", required = false) String uid, @ApiIgnore Authentication authentication) {
         Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
         if (optKycInfo.isPresent()) {
             Kycinfo kycinfo = optKycInfo.get();
@@ -256,10 +260,11 @@ class KycRestController {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
             }
     )
-   Collection<KycStatus> getAllKycStatuses(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                    @RequestParam(value = "size", defaultValue = "10", required = false) int size,
-                                    @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
-                                    @RequestParam(value = "status", defaultValue = "all", required = false) String st, Authentication authentication) {
+    Collection<KycStatus> getAllKycStatuses(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                                            @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+                                            @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
+                                            @RequestParam(value = "status", defaultValue = "all", required = false) String st, @ApiIgnore Authentication authentication) {
+        //TODO: have to st for filter status
         authentication.getAuthorities().forEach(System.out::println);
         boolean authorized =
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
@@ -297,17 +302,9 @@ class KycRestController {
         }
     }
 
-    @GetMapping(path = "/status/test", produces = "application/json")
-    public String checkStatus() {
-        return "OK DARE DOROST kar mikone";
-    }
-
-
-    @Secured("webapp-admin,ROLE_KYCHECKER")
     @PutMapping("/{uid}/{status}")
-    ResponseEntity<KycStatus> editKycStatus(@PathVariable String uid, @PathVariable String status, Authentication authentication) {
+    ResponseEntity<KycStatus> editKycStatus(@PathVariable String uid, @PathVariable String status, @ApiIgnore Authentication authentication) {
         Optional<Kycinfo> kycinfoOptional;
-
         boolean authorized =
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
                         authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
