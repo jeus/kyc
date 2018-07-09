@@ -15,4 +15,5 @@ public interface KycJpaRepository extends JpaRepository<Kycinfo, Long> {
     Optional<Kycinfo> findByUid(String uid);
     Collection<Kycinfo> findByStatus(Status status);
     boolean existsByUid(String uid);
+    boolean existsByUidAndStatusIn(String uid,Status... status);
 }
