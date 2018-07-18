@@ -23,7 +23,7 @@ public enum ImageType {
         this.imageType = imageType;
     }
 
-    public String getStatus() {
+    public String getImageType() {
         return this.imageType;
     }
 

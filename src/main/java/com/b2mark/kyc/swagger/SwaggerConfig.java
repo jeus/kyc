@@ -2,6 +2,7 @@ package com.b2mark.kyc.swagger;
 
 import com.fasterxml.classmate.TypeResolver;
 import com.google.common.base.Predicates;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,10 +62,11 @@ public class SwaggerConfig {
                 typeResolver.resolve(WildcardType.class));
 
 
-        return new Docket(DocumentationType.SWAGGER_2)
+        return new Docket(DocumentationType.SWAGGER_2).protocols(Sets.newHashSet("https"))
                 .alternateTypeRules(collectionRule, AlternateTypeRules.newRule(LocalDateTime.class, Date.class))
                 .select().apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
+
                 .paths(Predicates.not(PathSelectors.regex("/error.*")))
                 .build().apiInfo(apiInfo);
     }

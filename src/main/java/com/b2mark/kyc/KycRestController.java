@@ -26,7 +26,6 @@ import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +34,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -88,7 +86,7 @@ class KycRestController {
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
                         authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
 
-        if (!authorized || !authentication.getName().equals(uid)) {
+        if (!authorized && !authentication.getName().equals(uid)) {
             throw new Unauthorized("You don't have permission");
         }
         if ((kycinfo = this.kycJpaRepository.findByUid(uid)).isPresent()) {
@@ -180,35 +178,38 @@ class KycRestController {
     @PutMapping
     ResponseEntity<Kycinfo> updateKyc(@RequestBody Kycinfo kycInput, Authentication authentication) {
         log.info("MTD:update DSC:update exist kycinfo");
-        if (authentication.getName().equals(kycInput.getUid())) {
-            Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
-            if (optKycInfo.isPresent()) {
-                Kycinfo kycInfo = optKycInfo.get();
-                if (kycInfo.getStatus().equals(Status.checking)) {
-                    throw new Unauthorized("You cant update information. Our Operators are checking your data. Please Wait");
-                }
-                if (KycApplication.mapCountries.get(kycInput.getCountry()) == null) {
-                    throw new BadRequest("Country ID is not Valid " + kycInput.getCountry());
-                }
-                kycInfo.setCountry(kycInput.getCountry());
-                kycInfo.setFname(kycInput.getFname());
-                kycInfo.setLname(kycInput.getLname());
-                kycInfo.setGender(kycInput.getGender());
-                kycInfo.setLicenseid(kycInput.getLicenseid());
-                kycInfo.setLtype(kycInput.getLtype());
-                kycInfo.setLastupdate(new Date());
-                kycJpaRepository.save(kycInfo);
-                URI location = ServletUriComponentsBuilder
-                        .fromCurrentRequest().path("/{uid}")
-                        .buildAndExpand(kycInfo.getUid()).toUri();
-                HttpHeaders headers = new HttpHeaders();
-                headers.setLocation(location);
-                return new ResponseEntity<>(kycInfo, headers, HttpStatus.CREATED);
-            } else {
-                throw new ContentNotFound("This user id undefined");
+
+        Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
+        if (optKycInfo.isPresent()) {
+            Kycinfo kycInfo = optKycInfo.get();
+            if (kycInfo.getStatus().equals(Status.pending)) {
+                throw new Unauthorized("before that you send information our operators will check your information");
             }
+            if (kycInfo.getStatus().equals(Status.checking)) {
+                throw new Unauthorized("You cant update information. Our Operators are checking your data. Please Wait");
+            }
+            if (kycInfo.getStatus().equals(Status.accepted)) {
+                throw new Unauthorized("You cant update information. You are accepted");
+            }
+            if (KycApplication.mapCountries.get(kycInput.getCountry()) == null) {
+                throw new BadRequest("Country ID is not Valid " + kycInput.getCountry());
+            }
+            kycInfo.setCountry(kycInput.getCountry());
+            kycInfo.setFname(kycInput.getFname());
+            kycInfo.setLname(kycInput.getLname());
+            kycInfo.setGender(kycInput.getGender());
+            kycInfo.setLicenseid(kycInput.getLicenseid());
+            kycInfo.setLtype(kycInput.getLtype());
+            kycInfo.setLastupdate(new Date());
+            kycJpaRepository.save(kycInfo);
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{uid}")
+                    .buildAndExpand(kycInfo.getUid()).toUri();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(location);
+            return new ResponseEntity<>(kycInfo, headers, HttpStatus.CREATED);
         } else {
-            throw new Unauthorized("UID is not currect");
+            return addKyc(kycInput, authentication);
         }
     }
 
@@ -303,7 +304,7 @@ class KycRestController {
     }
 
     @PutMapping("/{uid}/{status}")
-    ResponseEntity<KycStatus> editKycStatus(@PathVariable String uid, @PathVariable String status, @ApiIgnore Authentication authentication) {
+    ResponseEntity<KycStatus> updateKycStatus(@PathVariable String uid, @PathVariable String status, @ApiIgnore Authentication authentication) {
         Optional<Kycinfo> kycinfoOptional;
         boolean authorized =
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
