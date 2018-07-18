@@ -42,7 +42,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
            JwtAuthenticationToken token = new JwtAuthenticationToken(authenticationToken);
            return getAuthenticationManager().authenticate(token);
        }
-
+        //TODO: for authentication this system is good for implementation. check user by authentication and add roles.
         String username = "";
         String password = "";
         List<GrantedAuthority> grantedAuths = new ArrayList<>();
