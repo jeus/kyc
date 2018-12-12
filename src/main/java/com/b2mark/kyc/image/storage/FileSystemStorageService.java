@@ -6,9 +6,9 @@
 
 package com.b2mark.kyc.image.storage;
 
-import com.b2mark.kyc.enums.ImageType;
 import com.b2mark.kyc.image.storage.exception.StorageException;
 import com.b2mark.kyc.image.storage.exception.StorageFileNotFoundException;
+import com.b2mark.kyc.enums.ImageType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;

@@ -22,4 +22,7 @@
 /nbbuild/
 /dist/
 /nbdist/
-/.nb-gradle/
+/.nb-gradle/.DS_Store
+/.DS_Store
+/src/main/resources/.DS_Store
+/src/test/java/com/b2mark/.DS_Store
