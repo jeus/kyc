@@ -3,11 +3,11 @@ info:
     desc: kyc (know your customer)
     name: kycinfo
     version: 1.0
-    license: b2mark
+    license: becopay
     contact:
-      email: info@b2mark.com
-      url: http://www.b2mark.com
-      name: b2mark
+      email: info@becopay.com
+      url: http://www.becopay.com
+      name: becopay
 logging:
   level:
     org:
