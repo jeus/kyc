@@ -1,0 +1,97 @@
+info:
+  app:
+    desc: kyc (know your customer)
+    name: kycinfo
+    version: 1.0
+    license: b2mark
+    contact:
+      email: info@b2mark.com
+      url: http://www.b2mark.com
+      name: b2mark
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+      hibernate: DEBUG
+server:
+  use-forward-headers: true
+  port: 9092
+  host: kyc.b2mark.com
+
+uaa:
+  url: ${UAA_URI:http://localhost:8080/uaa}
+  # Client ID on whose behalf the access_token will be verified by Resource Server
+  clientId: uaa-ui-client
+  clientSecret: secret
+spring:
+  application:
+    name: kyc 	#service name
+  profile:
+    active: production
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jeus
+    username: jeus
+    password: A123456c
+    driverClassName: org.postgresql.Driver
+    dbcp2:
+      default-query-timeout: 60
+    initialization-mode: never
+  flyway:
+    baseline-version: 0
+    baseline-description: descript this
+    encoding: UTF-8
+    table: flyway
+    locations: classpath:/db/postgres/migrations
+    schemas:  kycing
+    password: A123456c
+    user: jeus
+  jpa:
+    hibernate:
+      hbm2ddl:
+        auto: validate
+      ejb:
+        naming_strategy: org.hibernate.cfg.EJB3NamingStrategy
+      show_sql: true
+      format_sql: true
+      use_sql_comments: false
+      type: all
+      disableConnectionTracking: true
+      default_schema: kycing
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        default_schema: kycing
+  mvc:
+    dispatch-options-request: true
+  resources:
+      chain:
+        enabled: true
+  http:
+    multipart:
+    max-file-size: 1MB #upload file size
+debug: true
+
+management:
+  security:
+eureka:
+  instance:
+    leaseRenewalIntervalInSeconds: 1
+    leaseExpirationDurationInSeconds: 2
+  client:
+    serviceUrl:
+      defaultZone: http://87.98.188.77:8761/eureka/
+    healthcheck:
+      enabled: true
+    lease:
+      duration: 5
+storage:
+  endpoint:
+    - uripath: /img
+      dirpath: upload-dir
+      filepermit: jpeg,jpg,png,gif
+    - uripath: /doc
+      dirpath: doc_upload
+      filepermit: doc,docx
