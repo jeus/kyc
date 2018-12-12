@@ -9,13 +9,14 @@
  * @since 2018
  */
 
-package com.b2mark.kyc;
+package com.b2mark.kyc.controller.rest;
 
 
-import com.b2mark.kyc.entity.CountryJpaRepository;
-import com.b2mark.kyc.entity.KycJpaRepository;
+import com.b2mark.kyc.KycApplication;
+import com.b2mark.kyc.entity.tables.CountryJpaRepository;
+import com.b2mark.kyc.entity.tables.KycJpaRepository;
 import com.b2mark.kyc.entity.KycStatus;
-import com.b2mark.kyc.entity.Kycinfo;
+import com.b2mark.kyc.entity.tables.Kycinfo;
 import com.b2mark.kyc.enums.ImageType;
 import com.b2mark.kyc.enums.Status;
 import com.b2mark.kyc.exception.BadRequest;
@@ -156,12 +157,10 @@ class KycRestController {
     @PostMapping
     ResponseEntity<Kycinfo> addKyc(@RequestBody Kycinfo input, @ApiIgnore Authentication authentication) {
         log.info("MTD:add DESC:add new kycinfo for users");
-        if (kycJpaRepository.existsByUid(authentication.getName()))//Check uid registered.
-        {
+        if (kycJpaRepository.existsByUid(authentication.getName())){//Check uid registered.
             throw new BadRequest("Kyc for this user registerd before that");
         }
-        if (KycApplication.mapCountries.get(input.getCountry()) == null)//Check country id valid
-        {
+        if (KycApplication.mapCountries.get(input.getCountry()) == null) {//Check country id valid
             throw new BadRequest("Country ID is not Valid " + input.getCountry());
         }
         input.setUid(authentication.getName());

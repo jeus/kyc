@@ -3,9 +3,10 @@
  * @version 1.0
  * @since 2018
  */
-package com.b2mark.kyc;
+package com.b2mark.kyc.controller.rest;
 
-import com.b2mark.kyc.entity.Country;
+import com.b2mark.kyc.KycApplication;
+import com.b2mark.kyc.entity.tables.Country;
 import com.b2mark.kyc.exception.ContentNotFound;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,7 +35,7 @@ public class CountryRestController {
     @GetMapping(produces = "application/json")
     List<Country> allcountries() {
         List<Country> countries = new ArrayList<>();
-        KycApplication.mapCountries.forEach((k,v) -> {countries.add(new Country(k,v));});
+        KycApplication.mapCountries.forEach((k, v) -> {countries.add(new Country(k,v));});
         return countries;
     }
 
@@ -42,7 +43,6 @@ public class CountryRestController {
     /**
      * send country information of specific country
      * if country Id not found return 204 no content
-     *
      * @param cid country Identification
      * @return json kyc information of user
      */

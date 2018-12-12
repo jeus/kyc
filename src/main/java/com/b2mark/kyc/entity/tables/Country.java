@@ -1,4 +1,4 @@
-package com.b2mark.kyc.entity;
+package com.b2mark.kyc.entity.tables;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
