@@ -6,7 +6,7 @@
  * @version 1.0
  * @since 2018
  */
-package com.b2mark.kyc.entity;
+package com.b2mark.kyc.entity.tables;
 
 import com.b2mark.kyc.enums.Gender;
 import com.b2mark.kyc.enums.Status;
@@ -72,7 +72,7 @@ public class Kycinfo {
     @NotNull
     private LicenseType ltype;
 
-    //@CreationTimestamp
+
     @UpdateTimestamp
     @ApiModelProperty(readOnly = true)
     @Column(name = "lastupdate", insertable = false, updatable = false)

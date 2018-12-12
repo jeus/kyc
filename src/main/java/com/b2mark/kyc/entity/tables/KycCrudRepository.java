@@ -4,7 +4,7 @@
  * @since 2018
  */
 
-package com.b2mark.kyc.entity;
+package com.b2mark.kyc.entity.tables;
 
 import org.springframework.data.repository.CrudRepository;
 import java.util.List;

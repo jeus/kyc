@@ -25,17 +25,31 @@ uaa:
   clientId: uaa-ui-client
   clientSecret: secret
 spring:
+  application:
+    name: kyc 	#service name
   profile:
     active: production
   datasource:
-    url: jdbc:postgresql://87.98.188.77:5432/postgres
-    username: postgres
-    password: A123456b
+    url: jdbc:postgresql://localhost:5432/jeus
+    username: jeus
+    password: A123456c
     driverClassName: org.postgresql.Driver
+    dbcp2:
+      default-query-timeout: 60
+    initialization-mode: never
+  flyway:
+    baseline-version: 0
+    baseline-description: descript this
+    encoding: UTF-8
+    table: flyway
+    locations: classpath:/db/postgres/migrations
+    schemas:  kycing
+    password: A123456c
+    user: jeus
   jpa:
     hibernate:
       hbm2ddl:
-        auto: update
+        auto: validate
       ejb:
         naming_strategy: org.hibernate.cfg.EJB3NamingStrategy
       show_sql: true
@@ -43,19 +57,18 @@ spring:
       use_sql_comments: false
       type: all
       disableConnectionTracking: true
-      default_schema: dental
+      default_schema: kycing
     properties:
       hibernate:
         jdbc:
           lob:
             non_contextual_creation: true
+        default_schema: kycing
   mvc:
     dispatch-options-request: true
   resources:
       chain:
         enabled: true
-  application:
-    name: kyc 	#service name
   http:
     multipart:
     max-file-size: 1MB #upload file size

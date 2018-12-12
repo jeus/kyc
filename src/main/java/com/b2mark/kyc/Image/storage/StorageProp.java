@@ -1,4 +1,13 @@
 /**
+ * configuration persist file in system.
+ * storage:
+ *   endpoint:
+ *     - uripath: /img
+ *       dirpath: upload-dir
+ *       filepermit: jpeg,jpg,png,gif
+ *     - uripath: /doc
+ *       dirpath: doc_upload
+ *       filepermit: doc,docx
  * @author b2mark
  * @version 1.0
  * @since 2018

@@ -4,7 +4,7 @@
  * @since 2018
  */
 
-package com.b2mark.kyc.entity;
+package com.b2mark.kyc.entity.tables;
 
 import com.b2mark.kyc.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;

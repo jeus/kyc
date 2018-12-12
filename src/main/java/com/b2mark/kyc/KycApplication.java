@@ -12,8 +12,8 @@
 
 package com.b2mark.kyc;
 
-import com.b2mark.kyc.entity.Country;
-import com.b2mark.kyc.entity.CountryJpaRepository;
+import com.b2mark.kyc.entity.tables.Country;
+import com.b2mark.kyc.entity.tables.CountryJpaRepository;
 import com.b2mark.kyc.image.storage.StorageService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
