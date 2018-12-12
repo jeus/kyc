@@ -16,6 +16,10 @@ public class WebConfigurerAdapter implements WebMvcConfigurer {
         matcher.setUseRegisteredSuffixPatternMatch(true);
     }
 
+    /**
+     * set CORS for showing in websites.
+     * @param registry
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/kyc/**")
