@@ -73,6 +73,15 @@ public class Kycinfo {
     private LicenseType ltype;
 
 
+
+    @Column(name = "address", nullable = false, columnDefinition = "UNDEFINED")
+    private String address;
+
+
+    @Column(name = "card", nullable = false, columnDefinition = "UNDEFINED")
+    private String card;
+
+
     @UpdateTimestamp
     @ApiModelProperty(readOnly = true)
     @Column(name = "lastupdate", insertable = false, updatable = false)

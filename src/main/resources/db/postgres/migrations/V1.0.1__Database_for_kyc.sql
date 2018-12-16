@@ -1,6 +1,5 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -52,11 +51,16 @@ ALTER TABLE kycing.country OWNER TO jeus;
 
 COMMENT ON TABLE kycing.country IS 'country that user can select. ';
 
-
+CREATE SEQUENCE kycing.kycinfo_id_seq
+    START WITH 9999
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
 CREATE TABLE kycing.kycinfo
 (
-    id bigint NOT NULL DEFAULT nextval('kycing_back1.kycinfo_id_seq'::regclass),
+    id bigint NOT NULL DEFAULT nextval('kycing.kycinfo_id_seq'::regclass),
     uid character varying(36) COLLATE pg_catalog."default" NOT NULL,
     ltype kycing.licensetype NOT NULL,
     fname character varying(40) COLLATE pg_catalog."default" NOT NULL,

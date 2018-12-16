@@ -13,11 +13,13 @@ package com.b2mark.kyc.controller.rest;
 
 
 import com.b2mark.kyc.KycApplication;
+import com.b2mark.kyc.entity.MerchantKyc;
 import com.b2mark.kyc.entity.tables.CountryJpaRepository;
 import com.b2mark.kyc.entity.tables.KycJpaRepository;
 import com.b2mark.kyc.entity.KycStatus;
 import com.b2mark.kyc.entity.tables.Kycinfo;
 import com.b2mark.kyc.enums.ImageType;
+import com.b2mark.kyc.enums.LicenseType;
 import com.b2mark.kyc.enums.Status;
 import com.b2mark.kyc.exception.BadRequest;
 import com.b2mark.kyc.exception.ContentNotFound;
@@ -44,6 +46,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/kyc")
@@ -153,11 +156,33 @@ class KycRestController {
     }
 
 
+    @ApiOperation(value = "return kyc paginatio if not found 204 content not found")
+    @GetMapping(path = "/merchant",produces = "application/json")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(code = 204, message = "service and address is ok but content not found")
+            }
+    )
+    Collection<MerchantKyc> getAllMerchantKyces(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
+                                    @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+                                    @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
+                                    @RequestParam(value = "status", defaultValue = "all", required = false) String st, @ApiIgnore Authentication authentication) {
+
+        Collection<Kycinfo> kycinfos = getAllKyces(page,size,dir,st,authentication);
+
+        Collection<MerchantKyc> merchantKycs =  kycinfos.stream().map(s -> new MerchantKyc(s)).collect(Collectors.toList());
+
+       return merchantKycs;
+
+
+    }
+
+
     @ApiModelProperty(value = "uid", required = false)
     @PostMapping
     ResponseEntity<Kycinfo> addKyc(@RequestBody Kycinfo input, @ApiIgnore Authentication authentication) {
         log.info("MTD:add DESC:add new kycinfo for users");
-        if (kycJpaRepository.existsByUid(authentication.getName())){//Check uid registered.
+        if (kycJpaRepository.existsByUid(authentication.getName())) {//Check uid registered.
             throw new BadRequest("Kyc for this user registerd before that");
         }
         if (KycApplication.mapCountries.get(input.getCountry()) == null) {//Check country id valid
@@ -171,6 +196,30 @@ class KycRestController {
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(location);
         return new ResponseEntity<>(kycInfo, headers, HttpStatus.CREATED);
+    }
+
+    @ApiModelProperty(value = "mobile", required = false)
+    @PostMapping("/merchant")
+    ResponseEntity<MerchantKyc> addMerchantKyc(@RequestBody MerchantKyc input, @ApiIgnore Authentication authentication) {
+
+        Kycinfo kycinfo = input.getKycinfo();
+        kycinfo.setCountry("IR");
+        kycinfo.setLtype(LicenseType.NI);
+
+        ResponseEntity<Kycinfo> kycinfo1 = addKyc(kycinfo, authentication);
+        MerchantKyc merchantKyc = new MerchantKyc(kycinfo1.getBody());
+
+
+        Kycinfo kycinfo2 = kycJpaRepository.save(merchantKyc.getKycinfo());
+        MerchantKyc merchantKyc1 = new MerchantKyc(kycinfo2);
+
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{uid}")
+                .buildAndExpand(merchantKyc1.getKycinfo().getUid()).toUri();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(location);
+        return new ResponseEntity<>(merchantKyc1, headers, HttpStatus.CREATED);
     }
 
 
@@ -229,6 +278,8 @@ class KycRestController {
             throw new ContentNotFound("This user is invalid");
         }
     }
+
+
 
     @ApiOperation(value = "list of status (know your customer) by uid (user identification)")
     @GetMapping(path = "/status/{uid}", produces = "application/json")
