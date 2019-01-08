@@ -12,6 +12,7 @@
 package com.b2mark.kyc.controller.rest;
 
 
+import com.b2mark.common.temp.RandomNameGenerator;
 import com.b2mark.kyc.KycApplication;
 import com.b2mark.kyc.entity.MerchantKyc;
 import com.b2mark.kyc.entity.tables.CountryJpaRepository;
@@ -61,13 +62,16 @@ class KycRestController {
     private final StorageService storageService;
     private final CountryJpaRepository countryJpaRepository;
 
+    private final RandomNameGenerator randomNameGenerator;
+
 
     @Autowired
     KycRestController(KycJpaRepository kycJpaRepository, StorageService storageService,
-                      CountryJpaRepository countryJpaRepository) {
+                      CountryJpaRepository countryJpaRepository,RandomNameGenerator randomNameGenerator) {
         this.kycJpaRepository = kycJpaRepository;
         this.storageService = storageService;
         this.countryJpaRepository = countryJpaRepository;
+        this.randomNameGenerator = randomNameGenerator;
     }
 
     /**
@@ -157,23 +161,22 @@ class KycRestController {
 
 
     @ApiOperation(value = "return kyc paginatio if not found 204 content not found")
-    @GetMapping(path = "/merchant",produces = "application/json")
+    @GetMapping(path = "/merchant", produces = "application/json")
     @ApiResponses(
             value = {
                     @ApiResponse(code = 204, message = "service and address is ok but content not found")
             }
     )
     Collection<MerchantKyc> getAllMerchantKyces(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
-                                    @RequestParam(value = "size", defaultValue = "10", required = false) int size,
-                                    @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
-                                    @RequestParam(value = "status", defaultValue = "all", required = false) String st, @ApiIgnore Authentication authentication) {
+                                                @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+                                                @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
+                                                @RequestParam(value = "status", defaultValue = "all", required = false) String st, @ApiIgnore Authentication authentication) {
 
-        Collection<Kycinfo> kycinfos = getAllKyces(page,size,dir,st,authentication);
+        Collection<Kycinfo> kycinfos = getAllKyces(page, size, dir, st, authentication);
 
-        Collection<MerchantKyc> merchantKycs =  kycinfos.stream().map(s -> new MerchantKyc(s)).collect(Collectors.toList());
+        Collection<MerchantKyc> merchantKycs = kycinfos.stream().map(s -> new MerchantKyc(s)).collect(Collectors.toList());
 
-       return merchantKycs;
-
+        return merchantKycs;
 
     }
 
@@ -278,7 +281,6 @@ class KycRestController {
             throw new ContentNotFound("This user is invalid");
         }
     }
-
 
 
     @ApiOperation(value = "list of status (know your customer) by uid (user identification)")
@@ -424,6 +426,7 @@ class KycRestController {
             throw new BadRequest("header key:imagetype is not found or invalid imagetype:[cover,passport,passid]");
         }
     }
+
 
 
     private void validateUser(Integer userId) {
