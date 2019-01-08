@@ -34,7 +34,7 @@ public class SecurityTokenConfig extends WebSecurityConfigurerAdapter {
                 // allow all who are accessing "auth" service
                 .antMatchers("/country").permitAll()
                 // must be an admin if trying to access admin area (authentication is also required here)
-                .antMatchers("/kyc/**" + "/admin/**").hasRole("uma_authorization");
+                .antMatchers("kyc/**" , "img/**" ).hasRole("uma_authorization");
                 // Any other request must be authenticated
                 //  .anyRequest().authenticated();
     }
