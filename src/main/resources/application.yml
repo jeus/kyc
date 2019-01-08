@@ -74,8 +74,6 @@ spring:
     max-file-size: 1MB #upload file size
 debug: true
 
-management:
-  security:
 eureka:
   instance:
     leaseRenewalIntervalInSeconds: 1

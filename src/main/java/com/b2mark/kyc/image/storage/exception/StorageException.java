@@ -1,5 +1,5 @@
 /**
- * @author b2mark
+ * @author becopay
  * @version 1.0
  * @since 2018
  */
