@@ -73,7 +73,7 @@ CREATE TABLE kycing.kycinfo
     CONSTRAINT kycinfo_pkey PRIMARY KEY (id)
 );
 
-ALTER TABLE kycing.kycinfo OWNER to postgres;
+ALTER TABLE kycing.kycinfo OWNER TO jeus;
 COMMENT ON TABLE kycing.kycinfo IS 'information user kyc.';
 COMMENT ON COLUMN kycing.kycinfo.ltype IS 'license type is passport/drivers license/ National ID Card';
 COMMENT ON COLUMN kycing.kycinfo.fname  IS 'first name';

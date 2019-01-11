@@ -30,7 +30,7 @@ spring:
   profile:
     active: production
   datasource:
-    url: jdbc:postgresql://localhost:5432/jeus
+    url: jdbc:postgresql://postgresql:5432/jeus
     username: jeus
     password: A123456c
     driverClassName: org.postgresql.Driver
