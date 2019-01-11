@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/kyc")
 //@EnableGlobalMethodSecurity(securedEnabled = true)
 @Api()
-@CrossOrigin(origins = {"http://avazcoin.com", "http://staging1.b2mark.com"})
+@CrossOrigin(origins = {"https://becopay.com"})
 class KycRestController {
 
     private static final Logger log = LoggerFactory.getLogger(KycApplication.class);
