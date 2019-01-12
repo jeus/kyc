@@ -1,17 +1,8 @@
-/**
- * <h1>RestFul controll KYC</h1>
- * user can define kyc and operator can check validation od information<p>
- * <b>Note:</b> User can only define one KYC information<p>
- * every kyc information has 4 status. ['pending','checking','accepted','rejected']
- *
- * @author b2mark
- * @version 1.0
- * @since 2018
- */
-
 package com.b2mark.kyc.controller.rest;
 
 
+import com.b2mark.common.exceptions.ExceptionsDictionary;
+import com.b2mark.common.exceptions.PublicException;
 import com.b2mark.common.temp.RandomNameGenerator;
 import com.b2mark.kyc.KycApplication;
 import com.b2mark.kyc.entity.MerchantKyc;
@@ -22,9 +13,6 @@ import com.b2mark.kyc.entity.tables.Kycinfo;
 import com.b2mark.kyc.enums.ImageType;
 import com.b2mark.kyc.enums.LicenseType;
 import com.b2mark.kyc.enums.Status;
-import com.b2mark.kyc.exception.BadRequest;
-import com.b2mark.kyc.exception.ContentNotFound;
-import com.b2mark.kyc.exception.Unauthorized;
 import com.b2mark.kyc.image.storage.StorageService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -49,14 +37,24 @@ import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * <h1>RestFul controll KYC</h1>
+ * user can define kyc and operator can check validation od information<p>
+ * <b>Note:</b> User can only define one KYC information<p>
+ * every kyc information has 4 status. ['pending','checking','accepted','rejected']
+ *
+ * @author b2mark
+ * @version 1.0
+ * @since 2018
+ */
+
 @RestController
 @RequestMapping("/kyc")
-//@EnableGlobalMethodSecurity(securedEnabled = true)
 @Api()
 @CrossOrigin(origins = {"https://becopay.com"})
 class KycRestController {
 
-    private static final Logger log = LoggerFactory.getLogger(KycApplication.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KycApplication.class);
 
     private final KycJpaRepository kycJpaRepository;
     private final StorageService storageService;
@@ -67,12 +65,13 @@ class KycRestController {
 
     @Autowired
     KycRestController(KycJpaRepository kycJpaRepository, StorageService storageService,
-                      CountryJpaRepository countryJpaRepository,RandomNameGenerator randomNameGenerator) {
+                      CountryJpaRepository countryJpaRepository, RandomNameGenerator randomNameGenerator) {
         this.kycJpaRepository = kycJpaRepository;
         this.storageService = storageService;
         this.countryJpaRepository = countryJpaRepository;
         this.randomNameGenerator = randomNameGenerator;
     }
+
 
     /**
      * send KYC information of specific user
@@ -95,13 +94,13 @@ class KycRestController {
                         authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
 
         if (!authorized && !authentication.getName().equals(uid)) {
-            throw new Unauthorized("You don't have permission");
+            throw new PublicException(ExceptionsDictionary.UNAUTHORIZED, "You don't have permission");
         }
         if ((kycinfo = this.kycJpaRepository.findByUid(uid)).isPresent()) {
-            log.info("####################kyc indo find all:" + uid);
+            LOG.info("action:GetKyc,uid:{}", authentication.getName());
             return kycinfo;
         } else {
-            throw new ContentNotFound();
+            throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "this uid is not valid!");
         }
     }
 
@@ -142,20 +141,21 @@ class KycRestController {
                 String uid = authentication.getName();
                 Optional<Kycinfo> kycinfo;
                 if ((kycinfo = this.kycJpaRepository.findByUid(uid)).isPresent()) {
-                    log.info("####################kyc indo find all:" + uid);
                     Collection<Kycinfo> collection = new ArrayList<Kycinfo>();
                     collection.add(kycinfo.get());
+                    LOG.info("action:GetAllKyc,uid:{}", authentication.getName());
                     return collection;
                 } else {
-                    throw new ContentNotFound();
+                    throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "KYC is not exist");
                 }
             }
         } else {
             Status status = Status.fromString(st);
-            if (status != null)
+            if (status != null) {
+                LOG.info("action:GetAllKyc,uid:{}", authentication.getName());
                 return this.kycJpaRepository.findByStatus(status);
-            else
-                throw new ContentNotFound("Kyc Status Undefined");
+            } else
+                throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "Kyc Status Undefined");
         }
     }
 
@@ -170,12 +170,10 @@ class KycRestController {
     Collection<MerchantKyc> getAllMerchantKyces(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                                 @RequestParam(value = "size", defaultValue = "10", required = false) int size,
                                                 @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
-                                                @RequestParam(value = "status", defaultValue = "all", required = false) String st, @ApiIgnore Authentication authentication) {
-
-        Collection<Kycinfo> kycinfos = getAllKyces(page, size, dir, st, authentication);
-
+                                                @RequestParam(value = "status", defaultValue = "all", required = false) String status, @ApiIgnore Authentication authentication) {
+        Collection<Kycinfo> kycinfos = getAllKyces(page, size, dir, status, authentication);
         Collection<MerchantKyc> merchantKycs = kycinfos.stream().map(s -> new MerchantKyc(s)).collect(Collectors.toList());
-
+        LOG.info("action:GetAllKyc,uid:{},page:{},size:{},dir:{},status:{}", authentication.getName(), authentication.getName(), page, size, dir, status);
         return merchantKycs;
 
     }
@@ -184,12 +182,11 @@ class KycRestController {
     @ApiModelProperty(value = "uid", required = false)
     @PostMapping
     ResponseEntity<Kycinfo> addKyc(@RequestBody Kycinfo input, @ApiIgnore Authentication authentication) {
-        log.info("MTD:add DESC:add new kycinfo for users");
         if (kycJpaRepository.existsByUid(authentication.getName())) {//Check uid registered.
-            throw new BadRequest("Kyc for this user registerd before that");
+            throw new PublicException(ExceptionsDictionary.FREQUENTLYREQUEST, "Kyc for this user registerd before that");
         }
         if (KycApplication.mapCountries.get(input.getCountry()) == null) {//Check country id valid
-            throw new BadRequest("Country ID is not Valid " + input.getCountry());
+            throw new PublicException(ExceptionsDictionary.PARAMETERISNOTVALID, "Country ID is not Valid " + input.getCountry());
         }
         input.setUid(authentication.getName());
         Kycinfo kycInfo = kycJpaRepository.save(input);
@@ -198,6 +195,7 @@ class KycRestController {
                 .buildAndExpand(kycInfo.getUid()).toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(location);
+        LOG.info("action:AddKyc,UID:{},getFName:{},getLName:{}", authentication.getName(), input.getFname(), input.getLname());
         return new ResponseEntity<>(kycInfo, headers, HttpStatus.CREATED);
     }
 
@@ -222,35 +220,35 @@ class KycRestController {
                 .buildAndExpand(merchantKyc1.getKycinfo().getUid()).toUri();
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(location);
+        LOG.info("action:AddMerchant,UID:{},getFName:{},getLName:{}", authentication.getName(), input.getFname(), input.getLname());
         return new ResponseEntity<>(merchantKyc1, headers, HttpStatus.CREATED);
     }
 
 
     @PutMapping
-    ResponseEntity<Kycinfo> updateKyc(@RequestBody Kycinfo kycInput, Authentication authentication) {
-        log.info("MTD:update DSC:update exist kycinfo");
+    ResponseEntity<Kycinfo> updateKyc(@RequestBody Kycinfo input, Authentication authentication) {
 
         Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
         if (optKycInfo.isPresent()) {
             Kycinfo kycInfo = optKycInfo.get();
             if (kycInfo.getStatus().equals(Status.pending)) {
-                throw new Unauthorized("before that you send information our operators will check your information");
+                throw new PublicException(ExceptionsDictionary.UNAUTHORIZED, "before that you send information our operators will check your information");
             }
             if (kycInfo.getStatus().equals(Status.checking)) {
-                throw new Unauthorized("You cant update information. Our Operators are checking your data. Please Wait");
+                throw new PublicException(ExceptionsDictionary.UNAUTHORIZED, "You cant update information. Our Operators are checking your data. Please Wait");
             }
             if (kycInfo.getStatus().equals(Status.accepted)) {
-                throw new Unauthorized("You cant update information. You are accepted");
+                throw new PublicException(ExceptionsDictionary.UNAUTHORIZED, "You cant update information. You are accepted");
             }
-            if (KycApplication.mapCountries.get(kycInput.getCountry()) == null) {
-                throw new BadRequest("Country ID is not Valid " + kycInput.getCountry());
+            if (KycApplication.mapCountries.get(kycInfo.getCountry()) == null) {
+                throw new PublicException(ExceptionsDictionary.NUMBERISNOTVALID, "Country ID is not Valid " + kycInfo.getCountry());
             }
-            kycInfo.setCountry(kycInput.getCountry());
-            kycInfo.setFname(kycInput.getFname());
-            kycInfo.setLname(kycInput.getLname());
-            kycInfo.setGender(kycInput.getGender());
-            kycInfo.setLicenseid(kycInput.getLicenseid());
-            kycInfo.setLtype(kycInput.getLtype());
+            kycInfo.setCountry(kycInfo.getCountry());
+            kycInfo.setFname(kycInfo.getFname());
+            kycInfo.setLname(kycInfo.getLname());
+            kycInfo.setGender(kycInfo.getGender());
+            kycInfo.setLicenseid(kycInfo.getLicenseid());
+            kycInfo.setLtype(kycInfo.getLtype());
             kycInfo.setLastupdate(new Date());
             kycJpaRepository.save(kycInfo);
             URI location = ServletUriComponentsBuilder
@@ -258,9 +256,10 @@ class KycRestController {
                     .buildAndExpand(kycInfo.getUid()).toUri();
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(location);
+            LOG.info("action:AddKyc,uid:{},getfname:{},getlname:{}", authentication.getName(), input.getFname(), input.getLname());
             return new ResponseEntity<>(kycInfo, headers, HttpStatus.CREATED);
         } else {
-            return addKyc(kycInput, authentication);
+            return addKyc(input, authentication);
         }
     }
 
@@ -276,9 +275,10 @@ class KycRestController {
                     .buildAndExpand(kycStatus.getUid()).toUri();
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(location);
+            LOG.info("action:getStatus,uid:{}", authentication.getName());
             return new ResponseEntity<>(kycStatus, headers, HttpStatus.OK);
         } else {
-            throw new ContentNotFound("This user is invalid");
+            throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "This user is invalid");
         }
     }
 
@@ -300,9 +300,10 @@ class KycRestController {
                     .buildAndExpand(kycStatus.getUid()).toUri();
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(location);
+            LOG.info("action:getKycStatusByUid,uid:{},requestuid:{}", authentication.getName(), uid);
             return new ResponseEntity<>(kycStatus, headers, HttpStatus.OK);
         } else {
-            throw new ContentNotFound("This user is invalid");
+            throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "This user is invalid");
         }
     }
 
@@ -316,9 +317,7 @@ class KycRestController {
     Collection<KycStatus> getAllKycStatuses(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
                                             @RequestParam(value = "size", defaultValue = "10", required = false) int size,
                                             @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
-                                            @RequestParam(value = "status", defaultValue = "all", required = false) String st, @ApiIgnore Authentication authentication) {
-        //TODO: have to st for filter status
-        authentication.getAuthorities().forEach(System.out::println);
+                                            @RequestParam(value = "status", defaultValue = "all", required = false) String status, @ApiIgnore Authentication authentication) {
         boolean authorized =
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
                         authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
@@ -338,9 +337,10 @@ class KycRestController {
                     KycStatus kycStatus = new KycStatus(args.getUid(), args.getStatus());
                     statusList.add(kycStatus);
                 });
+                LOG.info("action:getAllKycStatuses,uid:{},page:{},size:{},dir:{},status:{}", authentication.getName(), page, size, dir, status);
                 return statusList;
             } else {
-                throw new ContentNotFound("Data Not Found");
+                throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "Data Not Found");
             }
         } else {
             Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
@@ -348,9 +348,10 @@ class KycRestController {
                 Kycinfo kycinfo = optKycInfo.get();
                 KycStatus kycStatus = new KycStatus(kycinfo.getUid(), kycinfo.getStatus());
                 statusList.add(kycStatus);
+                LOG.info("action:getAllKycStatuses,uid:{},page:{},size:{},dir:{},status:{}", authentication.getName(), page, size, dir, status);
                 return statusList;
             } else {
-                throw new ContentNotFound("This user is invalid");
+                throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "This user is invalid");
             }
         }
     }
@@ -362,16 +363,16 @@ class KycRestController {
                 authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
                         authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
         if (!authorized) {
-            throw new Unauthorized("You don't have permission to change status");
+            throw new PublicException(ExceptionsDictionary.UNAUTHORIZED, "You don't have permission to change status");
         }
         Status status1 = Status.fromString(status);
         if (status1 == null) {
-            throw new BadRequest("status is not defined [pending,checking,rejected,accepted]");
+            throw new PublicException(ExceptionsDictionary.PARAMETERNOTFOUND, "status is not defined [pending,checking,rejected,accepted]");
         }
         //TODO: change role from keycloak rest service.
         if ((kycinfoOptional = this.kycJpaRepository.findByUid(uid)).isPresent()) {
-            log.info("####################kyc indo find all:" + uid);
             Kycinfo kycinfo = kycinfoOptional.get();
+            String fromStatus = kycinfo.getStatus().name();
             kycinfo.setStatus(status1);
             kycJpaRepository.save(kycinfo);
 
@@ -381,9 +382,10 @@ class KycRestController {
                     .buildAndExpand(kycStatus.getUid()).toUri();
             HttpHeaders headers = new HttpHeaders();
             headers.setLocation(location);
+            LOG.info("action:UpdateKycStatus,UID:{},from-status:{},to-status:{}", authentication.getName(), fromStatus, status);
             return new ResponseEntity<>(kycStatus, headers, HttpStatus.OK);
         } else {
-            throw new ContentNotFound("This user is invalid");
+            throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "This user is invalid");
         }
     }
 
@@ -395,10 +397,10 @@ class KycRestController {
         ImageType imageType = null;
         if ((imageType = ImageType.fromString(imgtype)) != null) {
             Resource file = storageService.loadAsResource(imageType, authentication.getName(), "/img");
-            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+            LOG.info("action:getKycImage,uid:{},imgtype:{}", authentication.getName(), imgtype);
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
         } else {
-            throw new BadRequest("imagetype [" + imageType + "] is not valid");
+            throw new PublicException(ExceptionsDictionary.PARAMETERISNOTVALID, "imagetype [" + imageType + "] is not valid");
         }
     }
 
@@ -411,27 +413,20 @@ class KycRestController {
         if (optKycInfo.isPresent()) {
             Kycinfo kycInfo = optKycInfo.get();
             if (kycInfo.getStatus().equals(Status.checking)) {
-                throw new Unauthorized("You cant update information. Our Operators are checking your data. Please Wait");
+                throw new PublicException(ExceptionsDictionary.UNAUTHORIZED, "You cant update information. Our Operators are checking your data. Please Wait");
             }
             if (kycInfo.getStatus().equals(Status.accepted)) {
-                throw new Unauthorized("Your Information is Accepted, You can't change this information.");
+                throw new PublicException(ExceptionsDictionary.UNAUTHORIZED, "Your Information is Accepted, You can't change this information.");
             }
         }
         if ((imageType = ImageType.fromString(imgtypeStr)) != null) {
             storageService.store(file, imageType, authentication.getName(), "/img");
-            redirectAttributes.addFlashAttribute("message",
-                    "You successfully uploaded " + file.getOriginalFilename() + "!");
+            redirectAttributes.addFlashAttribute("message", "You successfully uploaded " + file.getOriginalFilename() + "!");
+            LOG.info("action:AddKycImage,UID:{},fileName:{},fileSize:{},fileContentType:{},imgtype:{}", authentication.getName(), file.getName(), file.getSize(), file.getContentType(), imgtypeStr);
             return "OK";
         } else {
-            throw new BadRequest("header key:imagetype is not found or invalid imagetype:[cover,passport,passid]");
+            throw new PublicException(ExceptionsDictionary.PARAMETERISNOTVALID, "header key:imagetype is not found or invalid imagetype:[cover,passport,passid]");
         }
     }
 
-
-
-    private void validateUser(Integer userId) {
-        //TODO: this section have to check user validation. if have kyc or not.
-//        this.accountRepository.findByUsername(userId).orElseThrow(
-//                () -> new UserNotFoundException(userId));
-    }
 }

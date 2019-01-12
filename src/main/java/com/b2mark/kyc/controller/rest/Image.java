@@ -5,6 +5,8 @@
  */
 package com.b2mark.kyc.controller.rest;
 
+import com.b2mark.common.exceptions.ExceptionsDictionary;
+import com.b2mark.common.exceptions.PublicException;
 import com.b2mark.kyc.KycApplication;
 import com.b2mark.kyc.enums.ImageType;
 import com.b2mark.kyc.exception.BadRequest;
@@ -28,10 +30,10 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/img")
 @Api()
-@CrossOrigin(origins = {"http://avazcoin.com", "http://staging1.b2mark.com"})
+@CrossOrigin(origins = {"http://becopay.com"})
 public class Image {
 
-    private static final Logger log = LoggerFactory.getLogger(KycApplication.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KycApplication.class);
 
     private final StorageService storageService;
 
@@ -50,7 +52,7 @@ public class Image {
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment; filename=\"" + file.getFilename() + "\"").body(file);
         } else {
-            throw new BadRequest("imagetype [" + imageType + "] is not valid");
+            throw new PublicException(ExceptionsDictionary.PARAMETERISNOTVALID,"imagetype [" + imageType + "] is not valid");
         }
     }
 
@@ -69,17 +71,18 @@ public class Image {
                 bufferedImage =
                         createResizedCopy(image, 400, 400, false);
 
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } catch (IOException e) {
+                LOG.error("action:store,message:{}",e.getMessage());
+                e.printStackTrace();
             }
             if (bufferedImage != null) {
                 return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + file.getFilename() + "\"").body(bufferedImage);
             } else {
-                throw new ContentNotFound("Not Found this Image");
+                throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND,"Not Found this Image");
             }
         } else {
-            throw new BadRequest("imagetype [" + imageType + "] is not valid");
+            throw new PublicException(ExceptionsDictionary.PARAMETERISNOTVALID,"imagetype [" + imageType + "] is not valid");
         }
     }
 

@@ -6,9 +6,12 @@
 
 package com.b2mark.kyc.image.storage;
 
-import com.b2mark.kyc.image.storage.exception.StorageException;
-import com.b2mark.kyc.image.storage.exception.StorageFileNotFoundException;
+import com.b2mark.common.exceptions.ExceptionsDictionary;
+import com.b2mark.common.exceptions.PublicException;
+import com.b2mark.kyc.KycApplication;
 import com.b2mark.kyc.enums.ImageType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -30,6 +33,8 @@ public class FileSystemStorageService implements StorageService {
     private final StorageProp storageProp;
     private final String type = ".jpg";
 
+    private static final Logger LOG = LoggerFactory.getLogger(KycApplication.class);
+
 
     @Autowired
     public FileSystemStorageService(StorageProp storageProp) {
@@ -42,17 +47,15 @@ public class FileSystemStorageService implements StorageService {
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (file.isEmpty()) {
-                throw new StorageException("Failed to store empty file " + filename);
+                throw new PublicException(ExceptionsDictionary.PARAMETERISNOTVALID,"Failed to store empty file " + filename);
             }
             if (filename.contains("..")) {
                 // This is a security check
-                throw new StorageException(
-                        "Cannot store file with relative path outside current directory "
-                                + filename);
+                throw new PublicException(ExceptionsDictionary.PARAMETERISNOTVALID, "Cannot store file with relative path outside current directory " + filename);
             }
             if(!isValidContentType(endpoint,file.getContentType()))
             {
-                throw new StorageException("this content type is not valid valid content type is ["+endpoint.getFilePermits()+"]");
+                throw new PublicException(ExceptionsDictionary.PARAMETERISNOTVALID,"this content type is not valid valid content type is ["+endpoint.getFilePermits()+"]");
             }
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, imgType.getPath(endpoint.getPath()).
@@ -61,7 +64,8 @@ public class FileSystemStorageService implements StorageService {
             }
         }
         catch (IOException e) {
-            throw new StorageException("Failed to store file " + filename, e);
+            LOG.error("action:store,message:{}",e.getMessage());
+            throw new PublicException(ExceptionsDictionary.UNDEFINEDERROR,"Failed to store file " + filename);
         }
     }
 
@@ -70,7 +74,8 @@ public class FileSystemStorageService implements StorageService {
         StorageProp.Endpoints endpoint = findEndPoint(uriPath);
         if(endpoint == null)
         {
-            throw new StorageException("This upload URI 'directorectory path' is not valid");
+            LOG.error("action:store,message:{}","This upload URI 'directorectory path' is not valid");
+            throw new PublicException(ExceptionsDictionary.UNDEFINEDERROR,"This Error is undefined");
         }
         try {
             return Files.walk(endpoint.getPath(), 1)
@@ -78,7 +83,8 @@ public class FileSystemStorageService implements StorageService {
                 .map(endpoint.getPath()::relativize);
         }
         catch (IOException e) {
-            throw new StorageException("Failed to read stored files", e);
+            LOG.error("action:store,message:{}",e.getMessage());
+            throw new PublicException(ExceptionsDictionary.UNDEFINEDERROR,"Failed to read stored files");
         }
 
     }
@@ -100,12 +106,12 @@ public class FileSystemStorageService implements StorageService {
                 return resource;
             }
             else {
-                throw new StorageFileNotFoundException(
-                        "Could not read file: " + "");
+                throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND, "Could not read the file");
             }
         }
         catch (MalformedURLException e) {
-            throw new StorageFileNotFoundException("Could not read file " , e);
+            LOG.error("action:store,message:{}",e.getMessage());
+            throw new PublicException(ExceptionsDictionary.UNDEFINEDERROR,"Could not read file ");
         }
     }
 
@@ -129,7 +135,8 @@ public class FileSystemStorageService implements StorageService {
             Files.createDirectories(ImageType.passid.getPath(endpoint.getPath()));
         }
         catch (IOException e) {
-            throw new StorageException("Could not initialize storage", e);
+            LOG.error("action:store,message:{}",e.getMessage());
+            throw new PublicException(ExceptionsDictionary.UNDEFINEDERROR,"Could not initialize storage");
         }
     }
 

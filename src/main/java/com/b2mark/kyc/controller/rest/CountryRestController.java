@@ -5,6 +5,8 @@
  */
 package com.b2mark.kyc.controller.rest;
 
+import com.b2mark.common.exceptions.ExceptionsDictionary;
+import com.b2mark.common.exceptions.PublicException;
 import com.b2mark.kyc.KycApplication;
 import com.b2mark.kyc.entity.tables.Country;
 import com.b2mark.kyc.exception.ContentNotFound;
@@ -60,7 +62,7 @@ public class CountryRestController {
             log.info("####################country  find all:" + cid);
             return  new Country(cid,name);
         } else {
-            throw new ContentNotFound();
+            throw new PublicException(ExceptionsDictionary.CONTENTNOTFOUND,"This country not fount!");
         }
     }
 

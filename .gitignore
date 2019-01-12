@@ -12,6 +12,7 @@
 
 ### IntelliJ IDEA ###
 .idea
+upload-dir
 *.iws
 *.iml
 *.ipr
