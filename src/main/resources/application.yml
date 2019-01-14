@@ -79,8 +79,9 @@ eureka:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
   client:
+
     serviceUrl:
-      defaultZone: http://eureka:8761/eureka/
+      defaultZone: http://discovery:becopaydiscovery1234@localhost:8761/eureka/
     healthcheck:
       enabled: true
     lease:

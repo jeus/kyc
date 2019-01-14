@@ -406,8 +406,7 @@ class KycRestController {
 
     @PostMapping("/img")
     public String addKycImage(@RequestParam("file") MultipartFile file,
-                              @RequestParam("imgtype") String imgtypeStr,
-                              RedirectAttributes redirectAttributes, Authentication authentication) {
+                              @RequestParam("imgtype") String imgtypeStr, Authentication authentication) {
         ImageType imageType = null;
         Optional<Kycinfo> optKycInfo = kycJpaRepository.findByUid(authentication.getName());
         if (optKycInfo.isPresent()) {
@@ -421,7 +420,6 @@ class KycRestController {
         }
         if ((imageType = ImageType.fromString(imgtypeStr)) != null) {
             storageService.store(file, imageType, authentication.getName(), "/img");
-            redirectAttributes.addFlashAttribute("message", "You successfully uploaded " + file.getOriginalFilename() + "!");
             LOG.info("action:AddKycImage,UID:{},fileName:{},fileSize:{},fileContentType:{},imgtype:{}", authentication.getName(), file.getName(), file.getSize(), file.getContentType(), imgtypeStr);
             return "OK";
         } else {

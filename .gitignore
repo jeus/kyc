@@ -12,7 +12,6 @@
 
 ### IntelliJ IDEA ###
 .idea
-upload-dir
 *.iws
 *.iml
 *.ipr
@@ -20,6 +19,8 @@ upload-dir
 ### NetBeans ###
 /nbproject/private/
 /build/
+/upload-dir/
+/debug/
 /nbbuild/
 /dist/
 /nbdist/
