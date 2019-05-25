@@ -19,11 +19,6 @@ server:
   port: 9092
   host: kyc.b2mark.com
 
-uaa:
-  url: ${UAA_URI:http://localhost:8080/uaa}
-  # Client ID on whose behalf the access_token will be verified by Resource Server
-  clientId: uaa-ui-client
-  clientSecret: secret
 spring:
   application:
     name: kyc 	#service name
@@ -79,7 +74,6 @@ eureka:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
   client:
-
     serviceUrl:
       defaultZone: http://discovery:becopaydiscovery1234@localhost:8761/eureka/
     healthcheck:

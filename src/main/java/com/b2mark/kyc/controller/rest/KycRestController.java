@@ -123,9 +123,8 @@ class KycRestController {
                                     @RequestParam(value = "dir", defaultValue = "asc", required = false) String dir,
                                     @RequestParam(value = "status", defaultValue = "all", required = false) String st, @ApiIgnore Authentication authentication) {
 
-        boolean authorized =
-                authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
-                        authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
+        boolean authorized = authentication.getAuthorities().contains(new SimpleGrantedAuthority("webapp-admin")) ||
+                authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_KYCHECKER"));
         Sort.Direction direction = Sort.Direction.ASC;
         if (dir.toLowerCase().equals("asc")) {
             direction = Sort.Direction.ASC;
